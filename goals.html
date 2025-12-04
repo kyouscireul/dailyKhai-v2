@@ -22,6 +22,17 @@
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- iOS Support (Apple doesn't use the manifest fully yet) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon.png">
+    
+    <!-- Theme Color for Chrome/Android -->
+    <meta name="theme-color" content="#F8FAFC">
 </head>
 <body class="bg-slate-50">
     <div id="root"></div>
