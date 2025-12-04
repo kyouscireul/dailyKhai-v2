@@ -5,28 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Khai's Routine</title>
     
-    <!-- PWA Settings (Added version query to force reload) -->
-    <link rel="manifest" href="manifest.json?v=2">
+    <!-- PWA Settings -->
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#F8FAFC">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon.png">
 
     <!-- Service Worker Registration -->
     <script>
-        // Unregister old workers first to clear errors
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-            for(let registration of registrations) {
-                registration.unregister();
-            }
-        });
-        
-        // Register new one
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(reg => console.log('SW Success'))
-                    .catch(err => console.log('SW Fail', err));
-            });
+            navigator.serviceWorker.register('./service-worker.js')
+                .then(reg => console.log('SW Registered!', reg))
+                .catch(err => console.log('SW Failed:', err));
         }
     </script>
     
@@ -35,7 +26,9 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <style> body { -webkit-tap-highlight-color: transparent; } </style>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; }
+    </style>
 </head>
 <body class="bg-slate-50 select-none">
     <div id="root"></div>
