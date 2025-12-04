@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Khai's Goals</title>
     
-    <!-- React & ReactDOM -->
+    <!-- React & ReactDOM (Loaded from CDN) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- NO BABEL -->
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -27,80 +26,105 @@
 <body class="bg-slate-50">
     <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+    <script>
+        const { useState, useEffect, createElement } = React;
+        const e = createElement;
 
         // --- INTERNAL ICON SYSTEM ---
-        const Icon = ({ children, size = 24, className = "", ...props }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>{children}</svg>
-        );
+        const Icon = ({ children, size = 24, className = "", ...props }) => {
+            return e('svg', {
+                xmlns: "http://www.w3.org/2000/svg",
+                width: size,
+                height: size,
+                viewBox: "0 0 24 24",
+                fill: "none",
+                stroke: "currentColor",
+                strokeWidth: "2",
+                strokeLinecap: "round",
+                strokeLinejoin: "round",
+                className: className,
+                ...props
+            }, children);
+        };
 
         const lucideReact = {
-            Target: (props) => <Icon {...props}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></Icon>,
-            TrendingUp: (props) => <Icon {...props}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></Icon>,
-            Layers: (props) => <Icon {...props}><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></Icon>,
-            ListTodo: (props) => <Icon {...props}><rect x="3" y="5" width="6" height="6" rx="1"/><path d="m3 17 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></Icon>,
-            Award: (props) => <Icon {...props}><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></Icon>,
-            Minus: (props) => <Icon {...props}><path d="M5 12h14"/></Icon>,
-            Plus: (props) => <Icon {...props}><path d="M5 12h14"/><path d="M12 5v14"/></Icon>,
+            Target: (props) => e(Icon, props, e('circle', { cx: 12, cy: 12, r: 10 }), e('circle', { cx: 12, cy: 12, r: 6 }), e('circle', { cx: 12, cy: 12, r: 2 })),
+            TrendingUp: (props) => e(Icon, props, e('polyline', { points: "22 7 13.5 15.5 8.5 10.5 2 17" }), e('polyline', { points: "16 7 22 7 22 13" })),
+            Layers: (props) => e(Icon, props, e('polygon', { points: "12 2 2 7 12 12 22 7 12 2" }), e('polyline', { points: "2 17 12 22 22 17" }), e('polyline', { points: "2 12 12 17 22 12" })),
+            ListTodo: (props) => e(Icon, props, e('rect', { x: 3, y: 5, width: 6, height: 6, rx: 1 }), e('path', { d: "m3 17 2 2 4-4" }), e('path', { d: "M13 6h8" }), e('path', { d: "M13 12h8" }), e('path', { d: "M13 18h8" })),
+            Award: (props) => e(Icon, props, e('circle', { cx: 12, cy: 8, r: 7 }), e('polyline', { points: "8.21 13.89 7 23 12 20 17 23 15.79 13.88" })),
+            Minus: (props) => e(Icon, props, e('path', { d: "M5 12h14" })),
+            Plus: (props) => e(Icon, props, e('path', { d: "M5 12h14" }), e('path', { d: "M12 5v14" }))
         };
 
         const { Target, TrendingUp, Layers, ListTodo, Award, Minus, Plus } = lucideReact;
 
-        // --- COMPONENTS MOVED OUTSIDE TO FIX FOCUS ISSUES ---
+        // --- COMPONENTS MOVED OUTSIDE ---
 
         const GoalCard = ({ label, value, inputValue, max, unit, onInputChange }) => (
-            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-3">
-                <div className="flex justify-between items-center mb-2">
-                    <span className="font-bold text-slate-700">{label}</span>
-                    <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200">
-                            <span className="text-xs font-bold text-slate-400">{unit}</span>
-                            <input 
-                            type="number" 
-                            value={inputValue} 
-                            onChange={(e) => onInputChange(e.target.value)}
-                            className="w-20 text-right font-bold text-slate-700 bg-transparent outline-none p-0 m-0"
-                            inputMode="numeric"
-                            />
-                            {max && <span className="text-xs font-medium text-slate-400 ml-1">/ {max}</span>}
-                    </div>
-                </div>
-                {max && (
-                    <div className="h-3 bg-slate-100 rounded-full overflow-hidden mb-2 relative">
-                        <div className="h-full bg-emerald-500 transition-all" style={{ width: `${Math.min(100, (value/max)*100)}%` }}></div>
-                    </div>
-                )}
-            </div>
+            e('div', { className: "bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-3" },
+                e('div', { className: "flex justify-between items-center mb-2" },
+                    e('span', { className: "font-bold text-slate-700" }, label),
+                    e('div', { className: "flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200" },
+                        e('span', { className: "text-xs font-bold text-slate-400" }, unit),
+                        e('input', {
+                            type: "number",
+                            value: inputValue,
+                            onChange: (e) => onInputChange(e.target.value),
+                            className: "w-20 text-right font-bold text-slate-700 bg-transparent outline-none p-0 m-0",
+                            inputMode: "numeric"
+                        }),
+                        max && e('span', { className: "text-xs font-medium text-slate-400 ml-1" }, `/ ${max}`)
+                    )
+                ),
+                max && e('div', { className: "h-3 bg-slate-100 rounded-full overflow-hidden mb-2 relative" },
+                    e('div', {
+                        className: "h-full bg-emerald-500 transition-all",
+                        style: { width: `${Math.min(100, (value/max)*100)}%` }
+                    })
+                )
+            )
         );
 
         const SkillSlider = ({ label, value, onChange }) => (
-            <div className="mb-5">
-                <div className="flex justify-between text-xs font-bold text-slate-600 mb-2">
-                    <span>{label}</span>
-                    <span>{value}%</span>
-                </div>
-                <div className="flex items-center gap-3">
-                    <button onClick={() => onChange(Math.max(0, value - 1))} className="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-lg text-slate-600 font-bold hover:bg-slate-200 active:scale-95 transition-all"><Minus size={14} /></button>
-                    <div className="flex-1 h-4 bg-slate-100 rounded-full overflow-hidden relative">
-                        <div className="h-full bg-indigo-500 transition-all duration-300 ease-out" style={{ width: `${value}%` }}></div>
-                        <input type="range" min="0" max="100" value={value} onChange={(e) => onChange(e.target.value)} className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer" />
-                    </div>
-                    <button onClick={() => onChange(Math.min(100, value + 1))} className="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-lg text-slate-600 font-bold hover:bg-slate-200 active:scale-95 transition-all"><Plus size={14} /></button>
-                </div>
-            </div>
+            e('div', { className: "mb-5" },
+                e('div', { className: "flex justify-between text-xs font-bold text-slate-600 mb-2" },
+                    e('span', null, label),
+                    e('span', null, `${value}%`)
+                ),
+                e('div', { className: "flex items-center gap-3" },
+                    e('button', {
+                        onClick: () => onChange(Math.max(0, value - 1)),
+                        className: "w-8 h-8 flex items-center justify-center bg-slate-100 rounded-lg text-slate-600 font-bold hover:bg-slate-200 active:scale-95 transition-all"
+                    }, e(Minus, { size: 14 })),
+                    e('div', { className: "flex-1 h-4 bg-slate-100 rounded-full overflow-hidden relative" },
+                        e('div', {
+                            className: "h-full bg-indigo-500 transition-all duration-300 ease-out",
+                            style: { width: `${value}%` }
+                        }),
+                        e('input', {
+                            type: "range",
+                            min: 0,
+                            max: 100,
+                            value: value,
+                            onChange: (e) => onChange(e.target.value),
+                            className: "absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                        })
+                    ),
+                    e('button', {
+                        onClick: () => onChange(Math.min(100, value + 1)),
+                        className: "w-8 h-8 flex items-center justify-center bg-slate-100 rounded-lg text-slate-600 font-bold hover:bg-slate-200 active:scale-95 transition-all"
+                    }, e(Plus, { size: 14 }))
+                )
+            )
         );
 
         const GoalsApp = () => {
             
-            // --- DATA: GOALS ---
             const defaultGoals = {
                 savings: 0,
                 savingsTarget: 5000,
-                skills: {
-                    frontend: 20,
-                    backend: 10,
-                    ai: 15
-                }
+                skills: { frontend: 20, backend: 10, ai: 15 }
             };
 
             const [goals, setGoals] = useState(() => {
@@ -113,7 +137,6 @@
                 };
             });
 
-            // Separate state for the input field to allow typing "2", "25", "250" without jitter
             const [savingInput, setSavingInput] = useState(String(goals.savings));
 
             useEffect(() => {
@@ -129,13 +152,10 @@
             };
 
             const handleSavingChange = (val) => {
-                setSavingInput(val); // Update the text box immediately
-                
-                if (val === '') return; // Allow empty field while typing
-
+                setSavingInput(val);
+                if (val === '') return;
                 const num = parseInt(val);
                 if (!isNaN(num)) {
-                    // Update the actual goal state
                     setGoals(prev => ({ ...prev, savings: num }));
                 }
             };
@@ -151,70 +171,59 @@
                 { id: 'emotional', label: 'Emotional', file: 'emotional.html' },
             ];
 
-            return (
-                <div className="min-h-screen font-sans pb-24">
-                    <div className="bg-white shadow-sm sticky top-0 z-10">
-                        <div className="max-w-md mx-auto px-4 pt-4 pb-2">
-                            <div>
-                                <h1 className="text-2xl font-black text-slate-800 tracking-tight">Goal Board</h1>
-                                <p className="text-slate-500 text-sm font-medium">Vision & Progress</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="max-w-md mx-auto px-4 py-4 space-y-6">
-                        {/* Pillars Grid */}
-                        <div className="grid grid-cols-2 gap-2">
-                            {pillars.map(pillar => (
-                                <a 
-                                    key={pillar.id}
-                                    href={pillar.file}
-                                    className="bg-white border border-slate-200 rounded-lg p-3 text-center text-sm font-bold text-slate-600 shadow-sm hover:border-indigo-300 hover:text-indigo-600 transition-colors block"
-                                >
-                                    {pillar.label}
-                                </a>
-                            ))}
-                        </div>
-
-                        {/* Financial Section */}
-                        <GoalCard 
-                            label="Saving Goal" 
-                            unit="RM " 
-                            value={goals.savings} // For progress bar
-                            inputValue={savingInput} // For text input
-                            max={goals.savingsTarget} 
-                            onInputChange={handleSavingChange} 
-                        />
-                        
-                        {/* Skills */}
-                        <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-                            <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
-                                <Layers size={16} /> Skill Progression
-                            </h2>
-                            <SkillSlider label="Front End Skill" value={goals.skills.frontend} onChange={(v) => updateSkill('frontend', v)} />
-                            <SkillSlider label="Back End Skill" value={goals.skills.backend} onChange={(v) => updateSkill('backend', v)} />
-                            <SkillSlider label="AI & Tools" value={goals.skills.ai} onChange={(v) => updateSkill('ai', v)} />
-                        </div>
-                    </div>
-
-                    <div className="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-2 z-50">
-                        <div className="max-w-md mx-auto flex justify-around">
-                            <a href="index.html" className="flex flex-col items-center p-2 rounded-xl transition-all text-slate-400 hover:text-blue-600">
-                                <ListTodo size={24} />
-                                <span className="text-[10px] font-bold mt-1">ROUTINE</span>
-                            </a>
-                            <button className="flex flex-col items-center p-2 rounded-xl transition-all text-indigo-600 bg-indigo-50">
-                                <Award size={24} />
-                                <span className="text-[10px] font-bold mt-1">GOALS</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            return e('div', { className: "min-h-screen font-sans pb-24" },
+                e('div', { className: "bg-white shadow-sm sticky top-0 z-10" },
+                    e('div', { className: "max-w-md mx-auto px-4 pt-4 pb-2" },
+                        e('div', null,
+                            e('h1', { className: "text-2xl font-black text-slate-800 tracking-tight" }, "Goal Board"),
+                            e('p', { className: "text-slate-500 text-sm font-medium" }, "Vision & Progress")
+                        )
+                    )
+                ),
+                e('div', { className: "max-w-md mx-auto px-4 py-4 space-y-6" },
+                    e('div', { className: "grid grid-cols-2 gap-2" },
+                        pillars.map(pillar => 
+                            e('a', {
+                                key: pillar.id,
+                                href: pillar.file,
+                                className: "bg-white border border-slate-200 rounded-lg p-3 text-center text-sm font-bold text-slate-600 shadow-sm hover:border-indigo-300 hover:text-indigo-600 transition-colors block"
+                            }, pillar.label)
+                        )
+                    ),
+                    e(GoalCard, {
+                        label: "Saving Goal",
+                        unit: "RM ",
+                        value: goals.savings,
+                        inputValue: savingInput,
+                        max: goals.savingsTarget,
+                        onInputChange: handleSavingChange
+                    }),
+                    e('div', { className: "bg-white p-5 rounded-2xl shadow-sm border border-slate-100" },
+                        e('h2', { className: "text-sm font-black text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2" },
+                            e(Layers, { size: 16 }), " Skill Progression"
+                        ),
+                        e(SkillSlider, { label: "Front End Skill", value: goals.skills.frontend, onChange: (v) => updateSkill('frontend', v) }),
+                        e(SkillSlider, { label: "Back End Skill", value: goals.skills.backend, onChange: (v) => updateSkill('backend', v) }),
+                        e(SkillSlider, { label: "AI & Tools", value: goals.skills.ai, onChange: (v) => updateSkill('ai', v) })
+                    )
+                ),
+                e('div', { className: "fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-2 z-50" },
+                    e('div', { className: "max-w-md mx-auto flex justify-around" },
+                        e('a', { href: "index.html", className: "flex flex-col items-center p-2 rounded-xl transition-all text-slate-400 hover:text-blue-600" },
+                            e(ListTodo, { size: 24 }),
+                            e('span', { className: "text-[10px] font-bold mt-1" }, "ROUTINE")
+                        ),
+                        e('button', { className: "flex flex-col items-center p-2 rounded-xl transition-all text-indigo-600 bg-indigo-50" },
+                            e(Award, { size: 24 }),
+                            e('span', { className: "text-[10px] font-bold mt-1" }, "GOALS")
+                        )
+                    )
+                )
             );
         };
 
         const root = ReactDOM.createRoot(document.getElementById("root"));
-        root.render(<GoalsApp />);
+        root.render(e(GoalsApp));
     </script>
 </body>
 </html>

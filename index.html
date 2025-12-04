@@ -5,12 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Khai's Routine</title>
     
-    <!-- React & ReactDOM -->
+    <!-- React & ReactDOM (Loaded from CDN) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,37 +19,139 @@
 <body class="bg-slate-50">
     <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+    <script>
+        const { useState, useEffect, createElement } = React;
+        const e = createElement; // Shortcut helper
 
-        // --- INTERNAL ICON SYSTEM ---
-        const Icon = ({ children, size = 24, className = "", ...props }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>{children}</svg>
-        );
+        // --- INTERNAL ICON SYSTEM (Pure JS) ---
+        const Icon = ({ children, size = 24, className = "", ...props }) => {
+            return e('svg', {
+                xmlns: "http://www.w3.org/2000/svg",
+                width: size,
+                height: size,
+                viewBox: "0 0 24 24",
+                fill: "none",
+                stroke: "currentColor",
+                strokeWidth: "2",
+                strokeLinecap: "round",
+                strokeLinejoin: "round",
+                className: className,
+                ...props
+            }, children);
+        };
 
+        // Icon Definitions
         const lucideReact = {
-            Sun: (props) => <Icon {...props}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></Icon>,
-            CloudSun: (props) => <Icon {...props}><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></Icon>,
-            Sunset: (props) => <Icon {...props}><path d="M12 10V2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/><path d="M8 22v-2a6 6 0 0 1 12 0v2"/><path d="M16 13a4 4 0 0 0-8 0"/><path d="M22 22H2"/></Icon>,
-            Moon: (props) => <Icon {...props}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></Icon>,
-            CheckCircle: (props) => <Icon {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></Icon>,
-            Circle: (props) => <Icon {...props}><circle cx="12" cy="12" r="10"/></Icon>,
-            RefreshCw: (props) => <Icon {...props}><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></Icon>,
-            Briefcase: (props) => <Icon {...props}><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></Icon>,
-            Gamepad2: (props) => <Icon {...props}><line x1="6" x2="10" y1="12" y2="12"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="15" x2="15.01" y1="13" y2="13"/><line x1="18" x2="18.01" y1="11" y2="11"/><rect width="20" height="12" x="2" y="6" rx="2"/></Icon>,
-            BookOpen: (props) => <Icon {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></Icon>,
-            Users: (props) => <Icon {...props}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></Icon>,
-            MapPin: (props) => <Icon {...props}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></Icon>,
-            Code: (props) => <Icon {...props}><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></Icon>,
-            Phone: (props) => <Icon {...props}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></Icon>,
-            Utensils: (props) => <Icon {...props}><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></Icon>,
-            Home: (props) => <Icon {...props}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></Icon>,
-            Zap: (props) => <Icon {...props}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></Icon>,
-            Flame: (props) => <Icon {...props}><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.148-1-5-1-5a6 6 0 0 1 6 6c0 3.606-3 4.5-6 6"/><path d="M15.5 4A7.495 7.495 0 0 1 12 12a2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5c0-1 1-2 3-3 0 4-3 7-5 7a4 4 0 0 1-4-4c0-2 2-3 2-5"/></Icon>,
-            MessageCircleHeart: (props) => <Icon {...props}><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/><path d="M15.8 9.2a2.5 2.5 0 0 0-3.5 0l-.3.4-.35-.3a2.42 2.42 0 1 0-3.2 3.6l3.6 3.5 3.6-3.5c1.2-1.2 1.1-2.7.1-3.7"/></Icon>,
-            Film: (props) => <Icon {...props}><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M17 7.5h4"/><path d="M17 16.5h4"/></Icon>,
-            ListTodo: (props) => <Icon {...props}><rect x="3" y="5" width="6" height="6" rx="1"/><path d="m3 17 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></Icon>,
-            Award: (props) => <Icon {...props}><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></Icon>
+            Sun: (props) => e(Icon, props, 
+                e('circle', { cx: 12, cy: 12, r: 4 }),
+                e('path', { d: "M12 2v2" }),
+                e('path', { d: "M12 20v2" }),
+                e('path', { d: "m4.93 4.93 1.41 1.41" }),
+                e('path', { d: "m17.66 17.66 1.41 1.41" }),
+                e('path', { d: "M2 12h2" }),
+                e('path', { d: "M20 12h2" }),
+                e('path', { d: "m6.34 17.66-1.41 1.41" }),
+                e('path', { d: "m19.07 4.93-1.41 1.41" })
+            ),
+            CloudSun: (props) => e(Icon, props, 
+                e('path', { d: "M12 2v2" }),
+                e('path', { d: "m4.93 4.93 1.41 1.41" }),
+                e('path', { d: "M20 12h2" }),
+                e('path', { d: "m19.07 4.93-1.41 1.41" }),
+                e('path', { d: "M15.947 12.65a4 4 0 0 0-5.925-4.128" }),
+                e('path', { d: "M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z" })
+            ),
+            Sunset: (props) => e(Icon, props, 
+                e('path', { d: "M12 10V2" }),
+                e('path', { d: "m4.93 4.93 1.41 1.41" }),
+                e('path', { d: "m19.07 4.93-1.41 1.41" }),
+                e('path', { d: "M8 22v-2a6 6 0 0 1 12 0v2" }),
+                e('path', { d: "M16 13a4 4 0 0 0-8 0" }),
+                e('path', { d: "M22 22H2" })
+            ),
+            Moon: (props) => e(Icon, props, e('path', { d: "M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" })),
+            CheckCircle: (props) => e(Icon, props, 
+                e('path', { d: "M22 11.08V12a10 10 0 1 1-5.93-9.14" }),
+                e('polyline', { points: "22 4 12 14.01 9 11.01" })
+            ),
+            Circle: (props) => e(Icon, props, e('circle', { cx: 12, cy: 12, r: 10 })),
+            RefreshCw: (props) => e(Icon, props, 
+                e('path', { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" }),
+                e('path', { d: "M21 3v5h-5" }),
+                e('path', { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" }),
+                e('path', { d: "M8 16H3v5" })
+            ),
+            Briefcase: (props) => e(Icon, props, 
+                e('rect', { width: 20, height: 14, x: 2, y: 7, rx: 2, ry: 2 }),
+                e('path', { d: "M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" })
+            ),
+            Gamepad2: (props) => e(Icon, props, 
+                e('line', { x1: 6, x2: 10, y1: 12, y2: 12 }),
+                e('line', { x1: 8, x2: 8, y1: 10, y2: 14 }),
+                e('line', { x1: 15, x2: 15.01, y1: 13, y2: 13 }),
+                e('line', { x1: 18, x2: 18.01, y1: 11, y2: 11 }),
+                e('rect', { width: 20, height: 12, x: 2, y: 6, rx: 2 })
+            ),
+            BookOpen: (props) => e(Icon, props, 
+                e('path', { d: "M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" }),
+                e('path', { d: "M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" })
+            ),
+            Users: (props) => e(Icon, props, 
+                e('path', { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" }),
+                e('circle', { cx: 9, cy: 7, r: 4 }),
+                e('path', { d: "M22 21v-2a4 4 0 0 0-3-3.87" }),
+                e('path', { d: "M16 3.13a4 4 0 0 1 0 7.75" })
+            ),
+            MapPin: (props) => e(Icon, props, 
+                e('path', { d: "M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" }),
+                e('circle', { cx: 12, cy: 10, r: 3 })
+            ),
+            Code: (props) => e(Icon, props, 
+                e('polyline', { points: "16 18 22 12 16 6" }),
+                e('polyline', { points: "8 6 2 12 8 18" })
+            ),
+            Phone: (props) => e(Icon, props, 
+                e('path', { d: "M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" })
+            ),
+            Utensils: (props) => e(Icon, props, 
+                e('path', { d: "M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" }),
+                e('path', { d: "M7 2v20" }),
+                e('path', { d: "M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" })
+            ),
+            Home: (props) => e(Icon, props, 
+                e('path', { d: "m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" }),
+                e('polyline', { points: "9 22 9 12 15 12 15 22" })
+            ),
+            Zap: (props) => e(Icon, props, e('polygon', { points: "13 2 3 14 12 14 11 22 21 10 12 10 13 2" })),
+            Flame: (props) => e(Icon, props, 
+                e('path', { d: "M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.148-1-5-1-5a6 6 0 0 1 6 6c0 3.606-3 4.5-6 6" }),
+                e('path', { d: "M15.5 4A7.495 7.495 0 0 1 12 12a2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0 2.5-2.5c0-1 1-2 3-3 0 4-3 7-5 7a4 4 0 0 1-4-4c0-2 2-3 2-5" })
+            ),
+            MessageCircleHeart: (props) => e(Icon, props, 
+                e('path', { d: "M7.9 20A9 9 0 1 0 4 16.1L2 22Z" }),
+                e('path', { d: "M15.8 9.2a2.5 2.5 0 0 0-3.5 0l-.3.4-.35-.3a2.42 2.42 0 1 0-3.2 3.6l3.6 3.5 3.6-3.5c1.2-1.2 1.1-2.7.1-3.7" })
+            ),
+            Film: (props) => e(Icon, props, 
+                e('rect', { width: 18, height: 18, x: 3, y: 3, rx: 2 }),
+                e('path', { d: "M7 3v18" }),
+                e('path', { d: "M3 7.5h4" }),
+                e('path', { d: "M3 12h18" }),
+                e('path', { d: "M3 16.5h4" }),
+                e('path', { d: "M17 3v18" }),
+                e('path', { d: "M17 7.5h4" }),
+                e('path', { d: "M17 16.5h4" })
+            ),
+            ListTodo: (props) => e(Icon, props, 
+                e('rect', { x: 3, y: 5, width: 6, height: 6, rx: 1 }),
+                e('path', { d: "m3 17 2 2 4-4" }),
+                e('path', { d: "M13 6h8" }),
+                e('path', { d: "M13 12h8" }),
+                e('path', { d: "M13 18h8" })
+            ),
+            Award: (props) => e(Icon, props, 
+                e('circle', { cx: 12, cy: 8, r: 7 }),
+                e('polyline', { points: "8.21 13.89 7 23 12 20 17 23 15.79 13.88" })
+            )
         };
 
         const { Sun, CloudSun, Sunset, Moon, CheckCircle, Circle, RefreshCw, Trophy, Heart, Coffee, Briefcase, Gamepad2, BookOpen, Users, MapPin, Code, Phone, Utensils, Home, Zap, Flame, MessageCircleHeart, Film, ListTodo, Award } = lucideReact;
@@ -198,153 +297,121 @@
 
             const getTypeIcon = (type) => {
                 switch (type) {
-                case 'prayer': return <div className="text-[10px] font-bold border border-slate-300 rounded px-1 text-slate-500">PRAY</div>;
-                case 'mosque': return <div className="flex items-center gap-1 text-[10px] font-bold bg-green-50 text-green-700 border border-green-200 rounded px-1"><MapPin size={10}/> MOSQUE</div>;
-                case 'social': return <Users size={16} className="text-pink-400" />;
-                case 'heart-sm': return <MessageCircleHeart size={16} className="text-pink-500" />;
-                case 'social-call': return <div className="flex items-center gap-1"><Phone size={14} className="text-pink-400" /><Users size={14} className="text-pink-400" /></div>;
-                case 'work': return <Briefcase size={16} className="text-slate-400" />;
-                case 'grind': return <div className="flex items-center gap-1 text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-200 rounded px-1"><Zap size={10}/> GRIND</div>;
-                case 'code': return <Code size={16} className="text-indigo-400" />;
-                case 'chill': return <Gamepad2 size={16} className="text-purple-400" />;
-                case 'film': return <div className="flex items-center gap-1 text-[10px] font-bold bg-purple-50 text-purple-600 border border-purple-200 rounded px-1"><Film size={10}/> FILM</div>;
-                case 'spirit': return <BookOpen size={16} className="text-amber-500" />;
-                case 'fitness': return <div className="text-[10px] font-bold bg-orange-50 text-orange-600 border border-orange-200 rounded px-1">RUN</div>;
-                case 'fitness-hard': return <div className="flex items-center gap-1 text-[10px] font-bold bg-red-50 text-red-600 border border-red-200 rounded px-1"><Flame size={10}/> HARD</div>;
-                case 'food': return <Utensils size={16} className="text-orange-400" />;
-                case 'home': return <Home size={16} className="text-slate-400" />;
+                case 'prayer': return e('div', { className: "text-[10px] font-bold border border-slate-300 rounded px-1 text-slate-500" }, "PRAY");
+                case 'mosque': return e('div', { className: "flex items-center gap-1 text-[10px] font-bold bg-green-50 text-green-700 border border-green-200 rounded px-1" }, e(MapPin, { size: 10 }), " MOSQUE");
+                case 'social': return e(Users, { size: 16, className: "text-pink-400" });
+                case 'heart-sm': return e(MessageCircleHeart, { size: 16, className: "text-pink-500" });
+                case 'social-call': return e('div', { className: "flex items-center gap-1" }, e(Phone, { size: 14, className: "text-pink-400" }), e(Users, { size: 14, className: "text-pink-400" }));
+                case 'work': return e(Briefcase, { size: 16, className: "text-slate-400" });
+                case 'grind': return e('div', { className: "flex items-center gap-1 text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-200 rounded px-1" }, e(Zap, { size: 10 }), " GRIND");
+                case 'code': return e(Code, { size: 16, className: "text-indigo-400" });
+                case 'chill': return e(Gamepad2, { size: 16, className: "text-purple-400" });
+                case 'film': return e('div', { className: "flex items-center gap-1 text-[10px] font-bold bg-purple-50 text-purple-600 border border-purple-200 rounded px-1" }, e(Film, { size: 10 }), " FILM");
+                case 'spirit': return e(BookOpen, { size: 16, className: "text-amber-500" });
+                case 'fitness': return e('div', { className: "text-[10px] font-bold bg-orange-50 text-orange-600 border border-orange-200 rounded px-1" }, "RUN");
+                case 'fitness-hard': return e('div', { className: "flex items-center gap-1 text-[10px] font-bold bg-red-50 text-red-600 border border-red-200 rounded px-1" }, e(Flame, { size: 10 }), " HARD");
+                case 'food': return e(Utensils, { size: 16, className: "text-orange-400" });
+                case 'home': return e(Home, { size: 16, className: "text-slate-400" });
                 default: return null;
                 }
             };
 
             const Section = ({ title, icon: Icon, colorClass, dataKey, items }) => (
-                <div className={`mb-4 rounded-2xl bg-white shadow-sm border border-slate-100 overflow-hidden`}>
-                <div className={`px-4 py-3 ${colorClass} flex items-center gap-2`}>
-                    <Icon size={18} className="text-slate-700" />
-                    <h3 className="font-bold text-slate-700 text-sm uppercase tracking-wide">{title}</h3>
-                </div>
-                <div className="p-2">
-                    {items.map(task => (
-                    <div 
-                        key={task.id} 
-                        onClick={() => toggleTask(dataKey, task.id)}
-                        className={`
-                        flex items-start gap-3 p-3 mb-1 rounded-xl cursor-pointer transition-all duration-200 border
-                        ${task.completed 
-                            ? 'bg-slate-50 border-slate-100 opacity-60' 
-                            : 'bg-white border-slate-100 hover:border-blue-200 hover:shadow-md'
-                        }
-                        `}
-                    >
-                        <div className={`mt-1 ${task.completed ? 'text-green-500' : 'text-slate-300'}`}>
-                        {task.completed ? <CheckCircle size={22} fill="currentColor" className="text-white" /> : <Circle size={22} />}
-                        </div>
-                        <div className="flex-1">
-                        <p className={`font-medium text-slate-800 ${task.completed ? 'line-through text-slate-500' : ''}`}>
-                            {task.text}
-                        </p>
-                        {task.subtext && (
-                            <p className={`text-xs mt-0.5 ${task.type === 'grind' ? 'text-purple-600 font-bold' : 'text-slate-500'}`}>{task.subtext}</p>
-                        )}
-                        </div>
-                        <div className="opacity-90">
-                        {getTypeIcon(task.type)}
-                        </div>
-                    </div>
-                    ))}
-                </div>
-                </div>
+                e('div', { className: "mb-4 rounded-2xl bg-white shadow-sm border border-slate-100 overflow-hidden" },
+                    e('div', { className: `px-4 py-3 ${colorClass} flex items-center gap-2` },
+                        e(Icon, { size: 18, className: "text-slate-700" }),
+                        e('h3', { className: "font-bold text-slate-700 text-sm uppercase tracking-wide" }, title)
+                    ),
+                    e('div', { className: "p-2" },
+                        items.map(task => 
+                            e('div', {
+                                key: task.id,
+                                onClick: () => toggleTask(dataKey, task.id),
+                                className: `flex items-start gap-3 p-3 mb-1 rounded-xl cursor-pointer transition-all duration-200 border ${task.completed ? 'bg-slate-50 border-slate-100 opacity-60' : 'bg-white border-slate-100 hover:border-blue-200 hover:shadow-md'}`
+                            },
+                                e('div', { className: `mt-1 ${task.completed ? 'text-green-500' : 'text-slate-300'}` },
+                                    task.completed ? e(CheckCircle, { size: 22, fill: "currentColor", className: "text-white" }) : e(Circle, { size: 22 })
+                                ),
+                                e('div', { className: "flex-1" },
+                                    e('p', { className: `font-medium text-slate-800 ${task.completed ? 'line-through text-slate-500' : ''}` }, task.text),
+                                    task.subtext && e('p', { className: `text-xs mt-0.5 ${task.type === 'grind' ? 'text-purple-600 font-bold' : 'text-slate-500'}` }, task.subtext)
+                                ),
+                                e('div', { className: "opacity-90" }, getTypeIcon(task.type))
+                            )
+                        )
+                    )
+                )
             );
 
-            return (
-                <div className="min-h-screen font-sans pb-24">
-                
-                <div className="bg-white shadow-sm sticky top-0 z-10">
-                    <div className="max-w-md mx-auto px-4 pt-4 pb-2">
-                    <div className="flex justify-between items-center mb-4">
-                        <div>
-                        <h1 className="text-2xl font-black text-slate-800 tracking-tight">Khai's Routine</h1>
-                        <p className="text-slate-500 text-sm font-medium">
-                            {level === 1 ? 'Bare Minimum' : level === 2 ? 'Growth Mode' : 'Monk Mode'}
-                        </p>
-                        </div>
-                        <button onClick={resetDay} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors">
-                            <RefreshCw size={18} className="text-slate-600" />
-                        </button>
-                    </div>
-
-                    <div className="flex bg-slate-100 p-1 rounded-xl mb-4">
-                        {[1, 2, 3].map(lvl => (
-                        <button 
-                            key={lvl}
-                            className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${level === lvl ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                            onClick={() => setLevel(lvl)}
-                        >
-                            L{lvl}
-                        </button>
-                        ))}
-                    </div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="flex-1 h-3 bg-slate-200 rounded-full overflow-hidden">
-                        <div 
-                            className={`h-full transition-all duration-500 ease-out ${level === 3 ? 'bg-purple-600' : level === 2 ? 'bg-indigo-500' : 'bg-blue-500'}`}
-                            style={{ width: `${progress}%` }}
-                        ></div>
-                        </div>
-                        <span className="text-xs font-bold text-slate-600 w-8 text-right">{progress}%</span>
-                    </div>
-                    </div>
-                </div>
-
-                <div className="max-w-md mx-auto px-4 py-4 space-y-2">
-                    
-                    {level === 2 && (
-                    <div className="mb-3 bg-indigo-50 border border-indigo-100 rounded-lg p-2 flex items-center gap-2 text-indigo-800 text-xs font-bold">
-                        <Users size={14} />
-                        <span>SOCIAL GOAL: Don't stay alone. Be outside.</span>
-                    </div>
-                    )}
-                    {level === 3 && (
-                    <div className="mb-3 bg-purple-50 border border-purple-100 rounded-lg p-2 flex items-center gap-2 text-purple-800 text-xs font-bold">
-                        <Flame size={14} />
-                        <span>HIGH DISCIPLINE: No Games. Full Mosque.</span>
-                    </div>
-                    )}
-
-                    {tasks.morning && <Section title={level > 1 ? "Early Morning" : "Morning"} icon={Sun} colorClass={level === 3 ? "bg-purple-100" : "bg-amber-100"} dataKey="morning" items={tasks.morning} />}
-                    {tasks.work_block && <Section title="Work & Focus" icon={Briefcase} colorClass={level === 3 ? "bg-purple-100" : "bg-emerald-100"} dataKey="work_block" items={tasks.work_block} />}
-                    {tasks.afternoon && <Section title="Afternoon" icon={CloudSun} colorClass={level === 3 ? "bg-purple-100" : "bg-sky-100"} dataKey="afternoon" items={tasks.afternoon} />}
-                    {tasks.evening && <Section title="Evening" icon={Sunset} colorClass={level === 3 ? "bg-purple-100" : "bg-orange-100"} dataKey="evening" items={tasks.evening} />}
-                    {tasks.night && <Section title="Night" icon={Moon} colorClass={level === 3 ? "bg-purple-100" : "bg-indigo-100"} dataKey="night" items={tasks.night} />}
-                    
-                    <div className="text-center p-6 text-slate-400 text-xs">
-                    <p>{level === 1 ? '"Consistency > Intensity"' : level === 2 ? '"Environment shapes discipline."' : '"No excuses. Pure execution."'}</p>
-                    </div>
-
-                </div>
-
-                <div className="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-2 z-50">
-                    <div className="max-w-md mx-auto flex justify-around">
-                    <button 
-                        className="flex flex-col items-center p-2 rounded-xl transition-all text-blue-600 bg-blue-50"
-                    >
-                        <ListTodo size={24} />
-                        <span className="text-[10px] font-bold mt-1">ROUTINE</span>
-                    </button>
-                    
-                    <a href="goals.html" className="flex flex-col items-center p-2 rounded-xl transition-all text-slate-400 hover:text-indigo-600">
-                        <Award size={24} />
-                        <span className="text-[10px] font-bold mt-1">GOALS</span>
-                    </a>
-                    </div>
-                </div>
-
-                </div>
+            return e('div', { className: "min-h-screen font-sans pb-24" },
+                e('div', { className: "bg-white shadow-sm sticky top-0 z-10" },
+                    e('div', { className: "max-w-md mx-auto px-4 pt-4 pb-2" },
+                        e('div', { className: "flex justify-between items-center mb-4" },
+                            e('div', null,
+                                e('h1', { className: "text-2xl font-black text-slate-800 tracking-tight" }, "Khai's Routine"),
+                                e('p', { className: "text-slate-500 text-sm font-medium" },
+                                    level === 1 ? 'Bare Minimum' : level === 2 ? 'Growth Mode' : 'Monk Mode'
+                                )
+                            ),
+                            e('button', { onClick: resetDay, className: "p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors" },
+                                e(RefreshCw, { size: 18, className: "text-slate-600" })
+                            )
+                        ),
+                        e('div', { className: "flex bg-slate-100 p-1 rounded-xl mb-4" },
+                            [1, 2, 3].map(lvl => 
+                                e('button', {
+                                    key: lvl,
+                                    className: `flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${level === lvl ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`,
+                                    onClick: () => setLevel(lvl)
+                                }, `L${lvl}`)
+                            )
+                        ),
+                        e('div', { className: "flex items-center gap-3 mb-2" },
+                            e('div', { className: "flex-1 h-3 bg-slate-200 rounded-full overflow-hidden" },
+                                e('div', {
+                                    className: `h-full transition-all duration-500 ease-out ${level === 3 ? 'bg-purple-600' : level === 2 ? 'bg-indigo-500' : 'bg-blue-500'}`,
+                                    style: { width: `${progress}%` }
+                                })
+                            ),
+                            e('span', { className: "text-xs font-bold text-slate-600 w-8 text-right" }, `${progress}%`)
+                        )
+                    )
+                ),
+                e('div', { className: "max-w-md mx-auto px-4 py-4 space-y-2" },
+                    level === 2 && e('div', { className: "mb-3 bg-indigo-50 border border-indigo-100 rounded-lg p-2 flex items-center gap-2 text-indigo-800 text-xs font-bold" },
+                        e(Users, { size: 14 }),
+                        e('span', null, "SOCIAL GOAL: Don't stay alone. Be outside.")
+                    ),
+                    level === 3 && e('div', { className: "mb-3 bg-purple-50 border border-purple-100 rounded-lg p-2 flex items-center gap-2 text-purple-800 text-xs font-bold" },
+                        e(Flame, { size: 14 }),
+                        e('span', null, "HIGH DISCIPLINE: No Games. Full Mosque.")
+                    ),
+                    tasks.morning && e(Section, { title: level > 1 ? "Early Morning" : "Morning", icon: Sun, colorClass: level === 3 ? "bg-purple-100" : "bg-amber-100", dataKey: "morning", items: tasks.morning }),
+                    tasks.work_block && e(Section, { title: "Work & Focus", icon: Briefcase, colorClass: level === 3 ? "bg-purple-100" : "bg-emerald-100", dataKey: "work_block", items: tasks.work_block }),
+                    tasks.afternoon && e(Section, { title: "Afternoon", icon: CloudSun, colorClass: level === 3 ? "bg-purple-100" : "bg-sky-100", dataKey: "afternoon", items: tasks.afternoon }),
+                    tasks.evening && e(Section, { title: "Evening", icon: Sunset, colorClass: level === 3 ? "bg-purple-100" : "bg-orange-100", dataKey: "evening", items: tasks.evening }),
+                    tasks.night && e(Section, { title: "Night", icon: Moon, colorClass: level === 3 ? "bg-purple-100" : "bg-indigo-100", dataKey: "night", items: tasks.night }),
+                    e('div', { className: "text-center p-6 text-slate-400 text-xs" },
+                        e('p', null, level === 1 ? '"Consistency > Intensity"' : level === 2 ? '"Environment shapes discipline."' : '"No excuses. Pure execution."')
+                    )
+                ),
+                e('div', { className: "fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-2 z-50" },
+                    e('div', { className: "max-w-md mx-auto flex justify-around" },
+                        e('button', { className: "flex flex-col items-center p-2 rounded-xl transition-all text-blue-600 bg-blue-50" },
+                            e(ListTodo, { size: 24 }),
+                            e('span', { className: "text-[10px] font-bold mt-1" }, "ROUTINE")
+                        ),
+                        e('a', { href: "goals.html", className: "flex flex-col items-center p-2 rounded-xl transition-all text-slate-400 hover:text-indigo-600" },
+                            e(Award, { size: 24 }),
+                            e('span', { className: "text-[10px] font-bold mt-1" }, "GOALS")
+                        )
+                    )
+                )
             );
         };
 
         const root = ReactDOM.createRoot(document.getElementById("root"));
-        root.render(<RoutineApp />);
+        root.render(e(RoutineApp));
     </script>
 </body>
 </html>
