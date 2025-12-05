@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Target, Eye, Flame, Dumbbell, BookOpen, DollarSign, Moon, Heart } from 'lucide-react';
 import { pillarData } from '../data/pillarData';
 import FocusQueue from '../components/pillars/FocusQueue';
+import AcademicTracker from '../components/pillars/AcademicTracker';
 
 const iconMap = {
     Target, Eye, Flame, Dumbbell, BookOpen, DollarSign, Moon, Heart
@@ -33,6 +34,7 @@ const PillarDetail = () => {
                 <p className="text-slate-500 font-medium leading-relaxed">{pillar.description}</p>
 
                 {pillar.widget === 'focusQueue' && <FocusQueue />}
+                {pillar.widget === 'academicTracker' && <AcademicTracker />}
 
                 <div className="mt-8 border-t border-slate-100 pt-8 text-center">
                     <div className="inline-block bg-slate-50 rounded-xl p-4 border border-slate-100">

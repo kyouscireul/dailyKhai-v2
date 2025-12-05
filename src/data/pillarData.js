@@ -28,7 +28,8 @@ export const pillarData = {
         title: "Academic",
         description: "Degree progress, grades, and study hours.",
         color: "bg-blue-50 text-blue-700",
-        icon: "BookOpen"
+        icon: "BookOpen",
+        widget: "academicTracker"
     },
     financial: {
         title: "Financial",
