@@ -64,7 +64,7 @@ const FocusQueue = () => {
                     type="text"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
-                    placeholder="What is the immediate next step?"
+                    placeholder="Next step?"
                     className="w-full bg-slate-50 border-0 rounded-2xl px-5 py-5 pr-14 text-slate-700 font-semibold placeholder:text-slate-400 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 focus:shadow-lg transition-all shadow-inner"
                 />
                 <button
