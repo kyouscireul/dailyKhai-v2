@@ -1,0 +1,1 @@
+{"name":"Khai's Routine","short_name":"DailyKhai","description":"My daily routine and personal use PWA","start_url":"/dailyKhai-v2/","display":"standalone","background_color":"#ffffff","theme_color":"#F8FAFC","lang":"en","scope":"/dailyKhai-v2/","icons":[{"src":"icon.png","sizes":"512x512","type":"image/png"}]}
