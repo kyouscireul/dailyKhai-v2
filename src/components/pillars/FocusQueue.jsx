@@ -31,48 +31,48 @@ const FocusQueue = () => {
     };
 
     return (
-        <div className="mt-6">
-            <h3 className="text-lg font-bold text-slate-700 mb-3 flex items-center gap-2">
-                <span className="bg-indigo-100 text-indigo-600 p-1 rounded text-xs">TACTICAL</span>
-                Focus Queue
-            </h3>
+        <div className="mt-8">
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-black text-slate-800 tracking-tight">Tactical Queue</h3>
+                <span className="bg-indigo-50 text-indigo-600 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-indigo-100">Focus Mode</span>
+            </div>
 
-            <form onSubmit={addTask} className="flex gap-2 mb-4">
+            <form onSubmit={addTask} className="relative mb-6">
                 <input
                     type="text"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
-                    placeholder="What is the NEXT step?"
-                    className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-700 font-medium focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                    placeholder="What is the immediate next step?"
+                    className="w-full bg-slate-50 border-0 rounded-2xl px-5 py-4 pr-14 text-slate-700 font-semibold placeholder:text-slate-400 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 focus:shadow-lg transition-all shadow-inner"
                 />
                 <button
                     type="submit"
-                    className="bg-indigo-600 text-white rounded-xl px-4 flex items-center justify-center hover:bg-indigo-700 active:scale-95 transition-all"
+                    disabled={!inputValue.trim()}
+                    className="absolute right-2 top-2 bottom-2 aspect-square bg-indigo-600 text-white rounded-xl flex items-center justify-center shadow-md hover:bg-indigo-700 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 transition-all"
                 >
-                    <Plus size={24} />
+                    <Plus size={20} strokeWidth={3} />
                 </button>
             </form>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
                 {queue.length === 0 && (
-                    <div className="text-center py-8 border-2 border-dashed border-slate-100 rounded-xl">
-                        <p className="text-slate-400 text-sm font-medium">Queue is empty. Stay focused.</p>
+                    <div className="text-center py-10 border-2 border-dashed border-slate-100 rounded-2xl bg-slate-50/50">
+                        <p className="text-slate-400 text-sm font-medium">Clear mind. Ready to engage.</p>
                     </div>
                 )}
 
                 {queue.map(task => (
                     <div
                         key={task.id}
-                        className="group flex items-center justify-between bg-white p-3 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all animate-in fade-in slide-in-from-bottom-2"
+                        className="group flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all animate-in fade-in slide-in-from-bottom-2"
                     >
-                        <span className="font-medium text-slate-700">{task.text}</span>
                         <button
                             onClick={() => completeTask(task.id)}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 text-slate-400 hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
-                            title="Complete"
+                            className="w-6 h-6 flex-shrink-0 rounded-full border-2 border-slate-200 group-hover:border-emerald-400 flex items-center justify-center text-transparent group-hover:text-emerald-500 transition-all"
                         >
-                            <Check size={18} />
+                            <Check size={14} strokeWidth={3} />
                         </button>
+                        <span className="font-semibold text-slate-700 flex-1 leading-snug">{task.text}</span>
                     </div>
                 ))}
             </div>
