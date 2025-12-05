@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Check, GraduationCap, Crown } from 'lucide-react';
+import { Check, GraduationCap } from 'lucide-react';
 import { academicData } from '../../data/academicData';
 
 const AcademicTracker = () => {
@@ -39,6 +39,23 @@ const AcademicTracker = () => {
         return { earned: earnedWeight, total: totalWeight };
     };
 
+    const calculateTotalProgress = () => {
+        let totalPossible = 0;
+        let totalEarned = 0;
+
+        academicData.forEach(subject => {
+            const { earned, total } = calculateSubjectProgress(subject);
+            totalPossible += total;
+            totalEarned += earned;
+        });
+
+        // Avoid division by zero
+        if (totalPossible === 0) return 0;
+        return Math.round((totalEarned / totalPossible) * 100);
+    };
+
+    const totalProgress = calculateTotalProgress();
+
     // Color mapping for Tailwind classes
     const colorStyles = {
         indigo: { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-100', bar: 'bg-indigo-500', lightBg: 'bg-indigo-50/50', check: 'bg-indigo-500 border-indigo-500' },
@@ -58,7 +75,25 @@ const AcademicTracker = () => {
                     <GraduationCap size={20} className="text-blue-600" />
                     Semester 5 Tracker
                 </h3>
-                <span className="bg-blue-50 text-blue-600 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-blue-100">Carry Marks</span>
+            </div>
+
+            {/* Main Progress Card */}
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 text-white shadow-lg shadow-blue-200">
+                <div className="flex justify-between items-end mb-4">
+                    <div>
+                        <p className="text-blue-100 text-sm font-bold uppercase tracking-wider mb-1">Total Carry Marks</p>
+                        <h2 className="text-4xl font-black tracking-tighter">{totalProgress}%</h2>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-blue-100 text-xs font-medium">Keep pushing!</p>
+                    </div>
+                </div>
+                <div className="h-3 bg-black/20 rounded-full overflow-hidden backdrop-blur-sm">
+                    <div
+                        className="h-full bg-white/90 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)] transition-all duration-1000 ease-out"
+                        style={{ width: `${totalProgress}%` }}
+                    />
+                </div>
             </div>
 
             {academicData.map(subject => {
@@ -87,12 +122,6 @@ const AcademicTracker = () => {
                                             ${isDone ? 'bg-slate-50 opacity-75' : 'hover:bg-slate-50'}
                                             ${isLeading ? 'border border-red-100 bg-red-50/30' : ''}`}
                                     >
-                                        {isLeading && (
-                                            <div className="absolute top-0 right-0 bg-red-100 text-red-600 px-1.5 py-0.5 rounded-bl-lg text-[9px] font-bold flex items-center gap-1">
-                                                <Crown size={8} /> LEAD
-                                            </div>
-                                        )}
-
                                         <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors
                                             ${isDone ? styles.check + ' text-white' : 'border-slate-200 bg-white'}`}>
                                             {isDone && <Check size={12} strokeWidth={3} />}
