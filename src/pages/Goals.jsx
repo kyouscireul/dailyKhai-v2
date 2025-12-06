@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Layers } from 'lucide-react';
+import { Layers, Pencil, Check } from 'lucide-react';
 import GoalCard from '../components/GoalCard';
 import SkillSlider from '../components/SkillSlider';
 import Footer from '../components/Footer';
@@ -19,6 +19,7 @@ const Goals = () => {
     });
 
     const [savingInput, setSavingInput] = useState(String(goals.savings));
+    const [isSkillEditing, setIsSkillEditing] = useState(false);
 
     useEffect(() => {
         localStorage.setItem('khaiGoals_v1', JSON.stringify(goals));
@@ -81,12 +82,36 @@ const Goals = () => {
                 />
 
                 <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
-                    <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
-                        <Layers size={16} /> Skill Progression
-                    </h2>
-                    <SkillSlider label="Front End Skill" value={goals.skills.frontend} onChange={(v) => updateSkill('frontend', v)} />
-                    <SkillSlider label="Back End Skill" value={goals.skills.backend} onChange={(v) => updateSkill('backend', v)} />
-                    <SkillSlider label="AI & Tools" value={goals.skills.ai} onChange={(v) => updateSkill('ai', v)} />
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                            <Layers size={16} /> Skill Progression
+                        </h2>
+                        <button
+                            onClick={() => setIsSkillEditing(!isSkillEditing)}
+                            className={`p-2 rounded-lg transition-all ${isSkillEditing ? 'bg-indigo-100 text-indigo-600' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'}`}
+                        >
+                            {isSkillEditing ? <Check size={18} /> : <Pencil size={18} />}
+                        </button>
+                    </div>
+
+                    <SkillSlider
+                        label="Front End Skill"
+                        value={goals.skills.frontend}
+                        onChange={(v) => updateSkill('frontend', v)}
+                        disabled={!isSkillEditing}
+                    />
+                    <SkillSlider
+                        label="Back End Skill"
+                        value={goals.skills.backend}
+                        onChange={(v) => updateSkill('backend', v)}
+                        disabled={!isSkillEditing}
+                    />
+                    <SkillSlider
+                        label="AI & Tools"
+                        value={goals.skills.ai}
+                        onChange={(v) => updateSkill('ai', v)}
+                        disabled={!isSkillEditing}
+                    />
                 </div>
             </div>
             <Footer />
