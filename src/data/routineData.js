@@ -7,7 +7,7 @@ export const defaultRoutines = {
         ],
         afternoon: [
             { id: "a1", text: "Zohor Prayer", completed: false, subtext: "Don't delay", type: "prayer" },
-            { id: "a2", text: "Text Her", completed: false, subtext: "How are you feeling?", type: "heart-sm" },
+            { id: "a2", text: "Talk with a friend", completed: false, subtext: "How are you feeling?", type: "heart-sm" },
             { id: "a3", text: "Flexible Time", completed: false, subtext: "Anime, Games, Light Work", type: "chill" }
         ],
         evening: [
@@ -37,7 +37,7 @@ export const defaultRoutines = {
         ],
         afternoon: [
             { id: "l2_a1", text: "Zohor @ Mosque", completed: false, subtext: "Go out", type: "mosque" },
-            { id: "l2_a2", text: "Text Her", completed: false, type: "heart-sm" },
+            { id: "l2_a2", text: "Talk with a friend", completed: false, type: "heart-sm" },
             { id: "l2_a3", text: "Chores", completed: false, type: "home" },
             { id: "l2_a4", text: "Afternoon Work", completed: false, type: "work" }
         ],
@@ -68,7 +68,7 @@ export const defaultRoutines = {
         ],
         afternoon: [
             { id: "l3_a1", text: "Zohor @ MOSQUE", completed: false, type: "mosque" },
-            { id: "l3_a2", text: "Text Her", completed: false, type: "heart-sm" },
+            { id: "l3_a2", text: "Talk with a friend", completed: false, type: "heart-sm" },
             { id: "l3_a3", text: "Chores", completed: false, type: "home" },
             { id: "l3_a4", text: "Afternoon Work", completed: false, type: "work" }
         ],
