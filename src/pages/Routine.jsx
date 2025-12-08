@@ -8,6 +8,14 @@ const Routine = () => {
     const [level, setLevel] = useState(2);
     const [isEditing, setIsEditing] = useState(false);
     const [userName, setUserName] = useState(() => localStorage.getItem('khai_userName') || 'Khai');
+    const [levelData, setLevelData] = useState(() => {
+        const saved = localStorage.getItem('khai_level_data');
+        return saved ? JSON.parse(saved) : {
+            1: { name: "Bare Minimum", goal: "Start small. Just show up." },
+            2: { name: "Growth Mode", goal: "SOCIAL GOAL: Don't stay alone." },
+            3: { name: "Monk Mode", goal: "HIGH DISCIPLINE: No Games." }
+        };
+    });
     const [deferredPrompt, setDeferredPrompt] = useState(null);
 
     // Initialize tasks state
@@ -45,6 +53,10 @@ const Routine = () => {
     useEffect(() => {
         localStorage.setItem('khai_userName', userName);
     }, [userName]);
+
+    useEffect(() => {
+        localStorage.setItem('khai_level_data', JSON.stringify(levelData));
+    }, [levelData]);
 
     const toggleTask = (section, taskId) => {
         setTasks(prev => ({ ...prev, [section]: prev[section].map(task => task.id === taskId ? { ...task, completed: !task.completed } : task) }));
@@ -129,7 +141,17 @@ const Routine = () => {
                             ) : (
                                 <h1 className="text-2xl font-black text-slate-800 tracking-tight">{userName}'s Routine</h1>
                             )}
-                            <p className="text-slate-500 text-sm font-medium">{level === 1 ? 'Bare Minimum' : level === 2 ? 'Growth Mode' : 'Monk Mode'}</p>
+                            {isEditing ? (
+                                <input
+                                    type="text"
+                                    value={levelData[level].name}
+                                    onChange={(e) => setLevelData(prev => ({ ...prev, [level]: { ...prev[level], name: e.target.value } }))}
+                                    className="text-slate-500 text-sm font-medium bg-slate-50 border-b border-slate-300 focus:outline-none w-full mt-1"
+                                    placeholder="Level Name"
+                                />
+                            ) : (
+                                <p className="text-slate-500 text-sm font-medium">{levelData[level].name}</p>
+                            )}
                         </div>
                         <div className="flex gap-2">
                             <button
@@ -176,18 +198,19 @@ const Routine = () => {
             </div>
 
             <div className="max-w-md mx-auto px-4 py-4 space-y-2">
-                {level === 2 && (
-                    <div className="mb-3 bg-indigo-50 border border-indigo-100 rounded-lg p-2 flex items-center gap-2 text-indigo-800 text-xs font-bold">
-                        <Users size={14} />
-                        <span>SOCIAL GOAL: Don't stay alone. Be outside.</span>
-                    </div>
-                )}
-                {level === 3 && (
-                    <div className="mb-3 bg-purple-50 border border-purple-100 rounded-lg p-2 flex items-center gap-2 text-purple-800 text-xs font-bold">
-                        <Flame size={14} />
-                        <span>HIGH DISCIPLINE: No Games. Full Mosque.</span>
-                    </div>
-                )}
+                <div className={`mb-3 border rounded-lg p-2 flex items-center gap-2 text-xs font-bold ${level === 3 ? 'bg-purple-50 border-purple-100 text-purple-800' : level === 2 ? 'bg-indigo-50 border-indigo-100 text-indigo-800' : 'bg-blue-50 border-blue-100 text-blue-800'}`}>
+                    {level === 3 ? <Flame size={14} /> : level === 2 ? <Users size={14} /> : <Sun size={14} />}
+                    {isEditing ? (
+                        <input
+                            type="text"
+                            value={levelData[level].goal}
+                            onChange={(e) => setLevelData(prev => ({ ...prev, [level]: { ...prev[level], goal: e.target.value } }))}
+                            className="bg-transparent border-b border-black/10 focus:outline-none w-full"
+                        />
+                    ) : (
+                        <span>{levelData[level].goal}</span>
+                    )}
+                </div>
 
                 {tasks.morning && <Section title={level > 1 ? "Early Morning" : "Morning"} icon={Sun} colorClass={level === 3 ? "bg-purple-100" : "bg-amber-100"} dataKey="morning" items={tasks.morning} onToggle={toggleTask} isEditing={isEditing} onAdd={addTask} onEdit={editTask} onDelete={deleteTask} />}
                 {tasks.work_block && <Section title="Work & Focus" icon={Briefcase} colorClass={level === 3 ? "bg-purple-100" : "bg-emerald-100"} dataKey="work_block" items={tasks.work_block} onToggle={toggleTask} isEditing={isEditing} onAdd={addTask} onEdit={editTask} onDelete={deleteTask} />}

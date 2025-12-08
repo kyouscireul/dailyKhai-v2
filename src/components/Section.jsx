@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckCircle, Circle, Trash2, Plus, Edit2 } from 'lucide-react';
-import TaskIcon from './TaskIcon';
+
 
 const Section = ({ title, icon: Icon, colorClass, dataKey, items, onToggle, isEditing, onEdit, onDelete, onAdd }) => (
     <div className="mb-4 rounded-2xl bg-white shadow-sm border border-slate-100 overflow-hidden">
@@ -40,15 +40,13 @@ const Section = ({ title, icon: Icon, colorClass, dataKey, items, onToggle, isEd
                     </div>
 
                     <div className="opacity-90 flex items-center gap-2">
-                        {isEditing ? (
+                        {isEditing && (
                             <button
                                 onClick={(e) => { e.stopPropagation(); onDelete(dataKey, task.id); }}
                                 className="text-red-300 hover:text-red-500 p-1"
                             >
                                 <Trash2 size={18} />
                             </button>
-                        ) : (
-                            <TaskIcon type={task.type} />
                         )}
                     </div>
                 </div>

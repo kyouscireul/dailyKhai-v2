@@ -44,7 +44,7 @@ const FinanceTracker = () => {
         setState(prev => ({
             ...prev,
             weeklySpent: prev.weeklySpent + value,
-            expenses: [newExpense, ...prev.expenses]
+            expenses: [newExpense, ...prev.expenses].slice(0, 50)
         }));
         setSpendingAmount('');
         setSpendingRemark('');
@@ -53,17 +53,27 @@ const FinanceTracker = () => {
     const undoLastExpense = () => {
         if (state.expenses.length === 0) return;
         const lastExpense = state.expenses[0];
+        const updatedExpenses = state.expenses.slice(1);
 
         setState(prev => ({
             ...prev,
             weeklySpent: prev.weeklySpent - lastExpense.amount,
-            expenses: prev.expenses.slice(1)
+            expenses: updatedExpenses
         }));
+
+        // Auto-navigate back if page becomes empty
+        const totalPages = Math.ceil(updatedExpenses.length / 5);
+        if (currentPage > totalPages && totalPages > 0) {
+            setCurrentPage(totalPages);
+        } else if (totalPages === 0) {
+            setCurrentPage(1); // Reset to 1 if empty
+        }
     };
 
     const resetWeek = () => {
         if (confirm('Start a new week? This will reset your spending to RM 0.')) {
             setState(prev => ({ ...prev, weeklySpent: 0, expenses: [] }));
+            setCurrentPage(1);
         }
     };
 
