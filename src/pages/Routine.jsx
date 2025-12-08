@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, CloudSun, Sunset, Moon, RefreshCw, Download, Users, Flame, Briefcase } from 'lucide-react';
+import { Sun, CloudSun, Sunset, Moon, RefreshCw, Download, Users, Flame, Briefcase, Edit, Check } from 'lucide-react';
 import Section from '../components/Section';
 import Footer from '../components/Footer';
 import { defaultRoutines } from '../data/routineData';
 
 const Routine = () => {
     const [level, setLevel] = useState(2);
+    const [isEditing, setIsEditing] = useState(false);
+    const [userName, setUserName] = useState(() => localStorage.getItem('khai_userName') || 'Khai');
     const [deferredPrompt, setDeferredPrompt] = useState(null);
 
     // Initialize tasks state
@@ -40,8 +42,50 @@ const Routine = () => {
         localStorage.setItem(`khaiRoutine_v2_L${level}`, JSON.stringify(tasks));
     }, [tasks, level]);
 
+    useEffect(() => {
+        localStorage.setItem('khai_userName', userName);
+    }, [userName]);
+
     const toggleTask = (section, taskId) => {
         setTasks(prev => ({ ...prev, [section]: prev[section].map(task => task.id === taskId ? { ...task, completed: !task.completed } : task) }));
+    };
+
+    const addTask = (section) => {
+        const text = prompt("Task Name:");
+        if (!text) return;
+        const subtext = prompt("Subtext (optional):");
+
+        const newTask = {
+            id: Date.now().toString(),
+            text,
+            subtext,
+            completed: false,
+            type: 'core' // Default type
+        };
+
+        setTasks(prev => ({
+            ...prev,
+            [section]: [...(prev[section] || []), newTask]
+        }));
+    };
+
+    const editTask = (section, task) => {
+        const newText = prompt("Task Name:", task.text);
+        if (newText === null) return; // Cancelled
+        const newSubtext = prompt("Subtext (optional):", task.subtext || "");
+
+        setTasks(prev => ({
+            ...prev,
+            [section]: prev[section].map(t => t.id === task.id ? { ...t, text: newText, subtext: newSubtext } : t)
+        }));
+    };
+
+    const deleteTask = (section, taskId) => {
+        if (!confirm("Delete this task?")) return;
+        setTasks(prev => ({
+            ...prev,
+            [section]: prev[section].filter(t => t.id !== taskId)
+        }));
     };
 
     const resetDay = () => {
@@ -75,12 +119,29 @@ const Routine = () => {
                 <div className="max-w-md mx-auto px-5 pt-5 pb-2">
                     <div className="flex justify-between items-center mb-6">
                         <div>
-                            <h1 className="text-2xl font-black text-slate-800 tracking-tight">Khai's Routine</h1>
+                            {isEditing ? (
+                                <input
+                                    type="text"
+                                    value={userName}
+                                    onChange={(e) => setUserName(e.target.value)}
+                                    className="text-2xl font-black text-slate-800 tracking-tight bg-slate-100 border-b-2 border-slate-300 focus:outline-none focus:border-indigo-500 w-full"
+                                />
+                            ) : (
+                                <h1 className="text-2xl font-black text-slate-800 tracking-tight">{userName}'s Routine</h1>
+                            )}
                             <p className="text-slate-500 text-sm font-medium">{level === 1 ? 'Bare Minimum' : level === 2 ? 'Growth Mode' : 'Monk Mode'}</p>
                         </div>
-                        <button onClick={resetDay} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors">
-                            <RefreshCw size={18} className="text-slate-600" />
-                        </button>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setIsEditing(!isEditing)}
+                                className={`p-2 rounded-full transition-colors ${isEditing ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                            >
+                                {isEditing ? <Check size={18} /> : <Edit size={18} />}
+                            </button>
+                            <button onClick={resetDay} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors">
+                                <RefreshCw size={18} className="text-slate-600" />
+                            </button>
+                        </div>
                     </div>
                     {deferredPrompt && (
                         <button
@@ -128,11 +189,11 @@ const Routine = () => {
                     </div>
                 )}
 
-                {tasks.morning && <Section title={level > 1 ? "Early Morning" : "Morning"} icon={Sun} colorClass={level === 3 ? "bg-purple-100" : "bg-amber-100"} dataKey="morning" items={tasks.morning} onToggle={toggleTask} />}
-                {tasks.work_block && <Section title="Work & Focus" icon={Briefcase} colorClass={level === 3 ? "bg-purple-100" : "bg-emerald-100"} dataKey="work_block" items={tasks.work_block} onToggle={toggleTask} />}
-                {tasks.afternoon && <Section title="Afternoon" icon={CloudSun} colorClass={level === 3 ? "bg-purple-100" : "bg-sky-100"} dataKey="afternoon" items={tasks.afternoon} onToggle={toggleTask} />}
-                {tasks.evening && <Section title="Evening" icon={Sunset} colorClass={level === 3 ? "bg-purple-100" : "bg-orange-100"} dataKey="evening" items={tasks.evening} onToggle={toggleTask} />}
-                {tasks.night && <Section title="Night" icon={Moon} colorClass={level === 3 ? "bg-purple-100" : "bg-indigo-100"} dataKey="night" items={tasks.night} onToggle={toggleTask} />}
+                {tasks.morning && <Section title={level > 1 ? "Early Morning" : "Morning"} icon={Sun} colorClass={level === 3 ? "bg-purple-100" : "bg-amber-100"} dataKey="morning" items={tasks.morning} onToggle={toggleTask} isEditing={isEditing} onAdd={addTask} onEdit={editTask} onDelete={deleteTask} />}
+                {tasks.work_block && <Section title="Work & Focus" icon={Briefcase} colorClass={level === 3 ? "bg-purple-100" : "bg-emerald-100"} dataKey="work_block" items={tasks.work_block} onToggle={toggleTask} isEditing={isEditing} onAdd={addTask} onEdit={editTask} onDelete={deleteTask} />}
+                {tasks.afternoon && <Section title="Afternoon" icon={CloudSun} colorClass={level === 3 ? "bg-purple-100" : "bg-sky-100"} dataKey="afternoon" items={tasks.afternoon} onToggle={toggleTask} isEditing={isEditing} onAdd={addTask} onEdit={editTask} onDelete={deleteTask} />}
+                {tasks.evening && <Section title="Evening" icon={Sunset} colorClass={level === 3 ? "bg-purple-100" : "bg-orange-100"} dataKey="evening" items={tasks.evening} onToggle={toggleTask} isEditing={isEditing} onAdd={addTask} onEdit={editTask} onDelete={deleteTask} />}
+                {tasks.night && <Section title="Night" icon={Moon} colorClass={level === 3 ? "bg-purple-100" : "bg-indigo-100"} dataKey="night" items={tasks.night} onToggle={toggleTask} isEditing={isEditing} onAdd={addTask} onEdit={editTask} onDelete={deleteTask} />}
 
                 <div className="text-center p-6 text-slate-400 text-xs">
                     <p>{level === 1 ? '"Consistency > Intensity"' : level === 2 ? '"Environment shapes discipline."' : '"No excuses. Pure execution."'}</p>

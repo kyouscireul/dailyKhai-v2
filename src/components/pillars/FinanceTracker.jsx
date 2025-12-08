@@ -16,6 +16,7 @@ const FinanceTracker = () => {
     });
 
     const [spendingAmount, setSpendingAmount] = useState('');
+    const [spendingRemark, setSpendingRemark] = useState('');
     const [showSettings, setShowSettings] = useState(false);
 
     // Persistence
@@ -35,6 +36,7 @@ const FinanceTracker = () => {
         const newExpense = {
             id: Date.now(),
             amount: value,
+            remark: spendingRemark.trim() || "Expense",
             date: new Date().toISOString()
         };
 
@@ -44,6 +46,7 @@ const FinanceTracker = () => {
             expenses: [newExpense, ...prev.expenses]
         }));
         setSpendingAmount('');
+        setSpendingRemark('');
     };
 
     const undoLastExpense = () => {
@@ -160,42 +163,59 @@ const FinanceTracker = () => {
             <div className="space-y-3">
                 <h3 className="text-sm font-black text-slate-800 tracking-tight flex items-center gap-2">
                     <ArrowDown size={16} className="text-red-500" />
-                    Quick Spend
+                    New Expense
                 </h3>
 
+                {/* Remark Input */}
+                <div>
+                    <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">Remark</label>
+                    <input
+                        type="text"
+                        value={spendingRemark}
+                        onChange={(e) => setSpendingRemark(e.target.value)}
+                        placeholder="What is this for?"
+                        className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-slate-300"
+                    />
+                </div>
+
                 {/* Quick Chips */}
-                <div className="grid grid-cols-4 gap-2">
-                    {[5, 10, 20, 50].map(amt => (
-                        <button
-                            key={amt}
-                            onClick={() => addExpense(amt)}
-                            className="h-14 rounded-xl bg-white border border-slate-100 shadow-sm hover:border-red-100 hover:bg-red-50 hover:shadow-md active:scale-95 transition-all flex flex-col items-center justify-center group"
-                        >
-                            <span className="text-[10px] font-bold text-slate-400 group-hover:text-red-400 leading-none mb-0.5">-RM</span>
-                            <span className="text-xl font-black text-slate-700 group-hover:text-red-600 leading-none">{amt}</span>
-                        </button>
-                    ))}
+                <div>
+                    <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">Quick Select</label>
+                    <div className="grid grid-cols-4 gap-2">
+                        {[5, 10, 20, 50].map(amt => (
+                            <button
+                                key={amt}
+                                onClick={() => addExpense(amt)}
+                                className="h-12 rounded-xl bg-white border border-slate-100 shadow-sm hover:border-red-100 hover:bg-red-50 hover:shadow-md active:scale-95 transition-all flex flex-col items-center justify-center group"
+                            >
+                                <span className="text-xs font-black text-slate-700 group-hover:text-red-600 leading-none">RM {amt}</span>
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Manual Input */}
-                <div className="flex gap-2">
-                    <div className="relative flex-1">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">RM</span>
-                        <input
-                            type="number"
-                            value={spendingAmount}
-                            onChange={(e) => setSpendingAmount(e.target.value)}
-                            placeholder="0.00"
-                            className="w-full bg-slate-100 border-0 rounded-xl pl-10 pr-4 py-3 text-lg font-bold text-slate-800 focus:bg-white focus:ring-4 focus:ring-red-100 transition-all placeholder:text-slate-300"
-                        />
+                <div>
+                    <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">Custom Amount</label>
+                    <div className="flex gap-2">
+                        <div className="relative flex-1">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">RM</span>
+                            <input
+                                type="number"
+                                value={spendingAmount}
+                                onChange={(e) => setSpendingAmount(e.target.value)}
+                                placeholder="0.00"
+                                className="w-full bg-slate-100 border-0 rounded-xl pl-10 pr-4 py-3 text-lg font-bold text-slate-800 focus:bg-white focus:ring-4 focus:ring-red-100 transition-all placeholder:text-slate-300"
+                            />
+                        </div>
+                        <button
+                            onClick={() => addExpense(spendingAmount)}
+                            disabled={!spendingAmount}
+                            className="bg-slate-800 text-white px-5 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-slate-200 hover:bg-slate-700 active:scale-95 disabled:opacity-50 disabled:scale-100 transition-all border-b-4 border-slate-900 active:border-b-0 active:translate-y-1"
+                        >
+                            Spend
+                        </button>
                     </div>
-                    <button
-                        onClick={() => addExpense(spendingAmount)}
-                        disabled={!spendingAmount}
-                        className="bg-slate-800 text-white px-5 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-slate-200 hover:bg-slate-700 active:scale-95 disabled:opacity-50 disabled:scale-100 transition-all border-b-4 border-slate-900 active:border-b-0 active:translate-y-1"
-                    >
-                        Spend
-                    </button>
                 </div>
             </div>
 
@@ -225,17 +245,20 @@ const FinanceTracker = () => {
                     {state.expenses.length === 0 ? (
                         <p className="text-center text-slate-300 text-xs py-2 italic">No spending yet this week.</p>
                     ) : (
-                        state.expenses.slice(0, 5).map(expense => (
+                        state.expenses.slice(0, 50).map(expense => (
                             <div key={expense.id} className="flex items-center justify-between p-2.5 bg-white border border-slate-100 rounded-lg shadow-sm animate-in fade-in slide-in-from-top-1">
-                                <div className="flex items-center gap-2.5">
-                                    <div className="w-6 h-6 rounded-full bg-red-50 flex items-center justify-center text-red-500">
-                                        <DollarSign size={12} />
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center text-red-500 shrink-0">
+                                        <DollarSign size={14} />
                                     </div>
-                                    <span className="text-xs font-bold text-slate-500">
-                                        {new Date(expense.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </span>
+                                    <div className="flex flex-col">
+                                        <span className="text-xs font-bold text-slate-700">{expense.remark}</span>
+                                        <span className="text-[10px] font-medium text-slate-400">
+                                            {new Date(expense.date).toLocaleDateString()} • {new Date(expense.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </span>
+                                    </div>
                                 </div>
-                                <span className="text-red-500 text-sm font-bold">- RM {expense.amount.toFixed(2)}</span>
+                                <span className="text-red-500 text-sm font-black">- RM {expense.amount.toFixed(2)}</span>
                             </div>
                         ))
                     )}
