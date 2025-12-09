@@ -1,0 +1,122 @@
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Layers, Pencil, Check } from 'lucide-react';
+import GoalCard from '../components/GoalCard';
+import SkillSlider from '../components/SkillSlider';
+import Footer from '../components/Footer';
+
+const Goals = () => {
+    const defaultGoals = { savings: 0, savingsTarget: 5000, skills: { frontend: 20, backend: 10, ai: 15 } };
+
+    const [goals, setGoals] = useState(() => {
+        const saved = localStorage.getItem('khaiGoals_v1');
+        const savedData = saved ? JSON.parse(saved) : {};
+        return {
+            savings: savedData.savings !== undefined ? savedData.savings : defaultGoals.savings,
+            savingsTarget: defaultGoals.savingsTarget,
+            skills: savedData.skills || defaultGoals.skills
+        };
+    });
+
+    const [savingInput, setSavingInput] = useState(String(goals.savings));
+    const [isSkillEditing, setIsSkillEditing] = useState(false);
+
+    useEffect(() => {
+        localStorage.setItem('khaiGoals_v1', JSON.stringify(goals));
+    }, [goals]);
+
+    const updateSkill = (key, value) => {
+        const cleanValue = Math.min(100, Math.max(0, parseInt(value) || 0));
+        setGoals(prev => ({ ...prev, skills: { ...prev.skills, [key]: cleanValue } }));
+    };
+
+    const handleSavingChange = (val) => {
+        setSavingInput(val);
+        if (val === '') return;
+        const num = parseInt(val);
+        if (!isNaN(num)) setGoals(prev => ({ ...prev, savings: num }));
+    };
+
+    const pillars = [
+        { id: 'focus', label: 'Focus', file: 'focus.html' },
+        { id: 'clarity', label: 'Clarity', file: 'clarity.html' },
+        { id: 'streak', label: 'Streak', file: 'streak.html' },
+        { id: 'physical', label: 'Physical', file: 'physical.html' },
+        { id: 'academic', label: 'Academic', file: 'academic.html' },
+        { id: 'financial', label: 'Financial', file: 'financial.html' },
+        { id: 'spiritual', label: 'Spiritual', file: 'spiritual.html' },
+        { id: 'emotional', label: 'Emotional', file: 'emotional.html' },
+    ];
+
+    return (
+        <div className="min-h-screen font-sans pb-24 bg-slate-50 select-none">
+            <div className="bg-white shadow-sm sticky top-0 z-10" style={{ paddingTop: "calc(env(safe-area-inset-top) + 10px)" }}>
+                <div className="max-w-md mx-auto px-4 pt-2 pb-3">
+                    <div>
+                        <h1 className="text-2xl font-black text-slate-800 tracking-tight">Goal Board</h1>
+                        <p className="text-slate-500 text-sm font-medium">Vision & Progress</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="max-w-md mx-auto px-4 py-4 space-y-6">
+                <div className="grid grid-cols-2 gap-2">
+                    {pillars.map(pillar => (
+                        <Link
+                            key={pillar.id}
+                            to={`/pillar/${pillar.id}`}
+                            className="bg-white border border-slate-200 rounded-lg p-3 text-center text-sm font-bold text-slate-600 shadow-sm hover:border-indigo-300 hover:text-indigo-600 transition-colors block"
+                        >
+                            {pillar.label}
+                        </Link>
+                    ))}
+                </div>
+
+                <GoalCard
+                    label="Saving Goal"
+                    unit="RM "
+                    value={goals.savings}
+                    inputValue={savingInput}
+                    max={goals.savingsTarget}
+                    onInputChange={handleSavingChange}
+                />
+
+                <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                            <Layers size={16} /> Skill Progression
+                        </h2>
+                        <button
+                            onClick={() => setIsSkillEditing(!isSkillEditing)}
+                            className={`p-2 rounded-lg transition-all ${isSkillEditing ? 'bg-indigo-100 text-indigo-600' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'}`}
+                        >
+                            {isSkillEditing ? <Check size={18} /> : <Pencil size={18} />}
+                        </button>
+                    </div>
+
+                    <SkillSlider
+                        label="Front End Skill"
+                        value={goals.skills.frontend}
+                        onChange={(v) => updateSkill('frontend', v)}
+                        disabled={!isSkillEditing}
+                    />
+                    <SkillSlider
+                        label="Back End Skill"
+                        value={goals.skills.backend}
+                        onChange={(v) => updateSkill('backend', v)}
+                        disabled={!isSkillEditing}
+                    />
+                    <SkillSlider
+                        label="AI & Tools"
+                        value={goals.skills.ai}
+                        onChange={(v) => updateSkill('ai', v)}
+                        disabled={!isSkillEditing}
+                    />
+                </div>
+            </div>
+            <Footer />
+        </div>
+    );
+};
+
+export default Goals;

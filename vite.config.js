@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/dailyKhai-v3/', // Matches standard GitHub repo naming for "dailyKhai v3"
+  base: '/dailyKhai-v2/', // Matches standard GitHub repo naming for "dailyKhai v2"
   plugins: [
     react(),
     VitePWA({

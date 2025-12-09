@@ -7,20 +7,20 @@ import { defaultRoutines } from '../data/routineData';
 const Routine = () => {
     const [level, setLevel] = useState(2);
     const [isEditing, setIsEditing] = useState(false);
-    const [userName, setUserName] = useState(() => localStorage.getItem('khai_userName') || 'Entrepreneur');
+    const [userName, setUserName] = useState(() => localStorage.getItem('khai_userName') || 'Khai');
     const [levelData, setLevelData] = useState(() => {
         const saved = localStorage.getItem('khai_level_data');
         return saved ? JSON.parse(saved) : {
-            1: { name: "Business Mode", goal: "Execute. Delegated. Done." },
-            2: { name: "Life Mode", goal: "Balance. Connection. Peace." },
-            3: { name: "Health Mode", goal: "Vitality. Strength. Focus." }
+            1: { name: "Bare Minimum", goal: "Start small. Just show up." },
+            2: { name: "Growth Mode", goal: "SOCIAL GOAL: Don't stay alone." },
+            3: { name: "Monk Mode", goal: "HIGH DISCIPLINE: No Games." }
         };
     });
     const [deferredPrompt, setDeferredPrompt] = useState(null);
 
     // Initialize tasks state
     const [tasks, setTasks] = useState(() => {
-        const saved = localStorage.getItem(`khaiRoutine_v3_L${level}`);
+        const saved = localStorage.getItem(`khaiRoutine_v2_L${level}`);
         return saved ? JSON.parse(saved) : defaultRoutines[level];
     });
 
@@ -42,12 +42,12 @@ const Routine = () => {
     };
 
     useEffect(() => {
-        const saved = localStorage.getItem(`khaiRoutine_v3_L${level}`);
+        const saved = localStorage.getItem(`khaiRoutine_v2_L${level}`);
         setTasks(saved ? JSON.parse(saved) : defaultRoutines[level]);
     }, [level]);
 
     useEffect(() => {
-        localStorage.setItem(`khaiRoutine_v3_L${level}`, JSON.stringify(tasks));
+        localStorage.setItem(`khaiRoutine_v2_L${level}`, JSON.stringify(tasks));
     }, [tasks, level]);
 
     useEffect(() => {
@@ -212,13 +212,14 @@ const Routine = () => {
                     )}
                 </div>
 
-                {tasks.morning && <Section title="Morning" icon={Sun} colorClass={level === 3 ? "bg-purple-100" : "bg-amber-100"} dataKey="morning" items={tasks.morning} onToggle={toggleTask} isEditing={isEditing} onAdd={addTask} onEdit={editTask} onDelete={deleteTask} />}
+                {tasks.morning && <Section title={level > 1 ? "Early Morning" : "Morning"} icon={Sun} colorClass={level === 3 ? "bg-purple-100" : "bg-amber-100"} dataKey="morning" items={tasks.morning} onToggle={toggleTask} isEditing={isEditing} onAdd={addTask} onEdit={editTask} onDelete={deleteTask} />}
+                {tasks.work_block && <Section title="Work & Focus" icon={Briefcase} colorClass={level === 3 ? "bg-purple-100" : "bg-emerald-100"} dataKey="work_block" items={tasks.work_block} onToggle={toggleTask} isEditing={isEditing} onAdd={addTask} onEdit={editTask} onDelete={deleteTask} />}
                 {tasks.afternoon && <Section title="Afternoon" icon={CloudSun} colorClass={level === 3 ? "bg-purple-100" : "bg-sky-100"} dataKey="afternoon" items={tasks.afternoon} onToggle={toggleTask} isEditing={isEditing} onAdd={addTask} onEdit={editTask} onDelete={deleteTask} />}
                 {tasks.evening && <Section title="Evening" icon={Sunset} colorClass={level === 3 ? "bg-purple-100" : "bg-orange-100"} dataKey="evening" items={tasks.evening} onToggle={toggleTask} isEditing={isEditing} onAdd={addTask} onEdit={editTask} onDelete={deleteTask} />}
                 {tasks.night && <Section title="Night" icon={Moon} colorClass={level === 3 ? "bg-purple-100" : "bg-indigo-100"} dataKey="night" items={tasks.night} onToggle={toggleTask} isEditing={isEditing} onAdd={addTask} onEdit={editTask} onDelete={deleteTask} />}
 
                 <div className="text-center p-6 text-slate-400 text-xs">
-                    <p>{level === 1 ? '"Success is scheduled."' : level === 2 ? '"Life is not a rehearsal."' : '"Health is wealth."'}</p>
+                    <p>{level === 1 ? '"Consistency > Intensity"' : level === 2 ? '"Environment shapes discipline."' : '"No excuses. Pure execution."'}</p>
                 </div>
             </div>
             <Footer />
