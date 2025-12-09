@@ -1,88 +1,72 @@
 export const defaultRoutines = {
-    1: {
+    1: { // Work / Business Context
         morning: [
-            { id: "m1", text: "Wake 6 AM & Subuh", completed: false, type: "core" },
-            { id: "m2", text: "Morning Focus", completed: false, subtext: "Run/Workout/Work/Chores", type: "flex" },
-            { id: "m3", text: "Bath & Brunch", completed: false, type: "restore" }
+            { id: "w_m1", text: "Check Key Metrics", completed: false, subtext: "Sales, Leads, Cashflow", type: "work" },
+            { id: "w_m2", text: "Review Calendar", completed: false, subtext: "Identify priorities", type: "core" },
+            { id: "w_m3", text: "Email Triage", completed: false, subtext: "Inbox Zero strategy", type: "work" },
+            { id: "w_m4", text: "Team Standup", completed: false, type: "social" }
         ],
         afternoon: [
-            { id: "a1", text: "Zohor Prayer", completed: false, subtext: "Don't delay", type: "prayer" },
-            { id: "a2", text: "Talk with a friend", completed: false, subtext: "How are you feeling?", type: "heart-sm" },
-            { id: "a3", text: "Flexible Time", completed: false, subtext: "Anime, Games, Light Work", type: "chill" }
+            { id: "w_a1", text: "Deep Work Block", completed: false, subtext: "Strategic Projects", type: "focus" },
+            { id: "w_a2", text: "Client Calls", completed: false, subtext: "Sales or Support", type: "social-call" },
+            { id: "w_a3", text: "Admin & Ops", completed: false, subtext: "Invoices, delegating", type: "admin" }
         ],
         evening: [
-            { id: "e1", text: "Asar Prayer", completed: false, subtext: "Don't delay", type: "prayer" },
-            { id: "e2", text: "Finish up work", completed: false, type: "work" },
-            { id: "e3", text: "Early Dinner", completed: false, type: "restore" },
-            { id: "e4", text: "Organize / Tidy up", completed: false, type: "core" }
+            { id: "w_e1", text: "Review Day's Progress", completed: false, type: "core" },
+            { id: "w_e2", text: "Plan Tomorrow", completed: false, subtext: "Select top 3 tasks", type: "core" },
+            { id: "w_e3", text: "Clear Workspace", completed: false, type: "home" }
         ],
         night: [
-            { id: "n1", text: "Maghrib Prayer", completed: false, type: "prayer" },
-            { id: "n2", text: "Leisure / Assignments", completed: false, subtext: "With friends", type: "social" },
-            { id: "n3", text: "Isyak Prayer", completed: false, type: "prayer" },
-            { id: "n4", text: "Meeting", completed: false, type: "work" },
-            { id: "n5", text: "Sleep and Personal Time", completed: false, type: "social" }
+            { id: "w_n1", text: "Skill Development", completed: false, subtext: "Read or Course", type: "grow" },
+            { id: "w_n2", text: "Networking", completed: false, subtext: "LinkedIn or Events", type: "social" },
+            { id: "w_n3", text: "Shutdown Ritual", completed: false, subtext: "Disconnect fully", type: "restore" }
         ]
     },
-    2: {
+    2: { // Life / Daily Context
         morning: [
-            { id: "l2_m1", text: "Wake before Subuh", completed: false, type: "core", highlight: true },
-            { id: "l2_m2", text: "Subuh Prayer", completed: false, type: "prayer" },
-            { id: "l2_m3", text: "Run / Workout", completed: false, subtext: "Get outside immediately", type: "fitness" },
-            { id: "l2_m4", text: "Bath & Brunch", completed: false, type: "restore" }
-        ],
-        work_block: [
-            { id: "l2_w1", text: "Degree Work", completed: false, subtext: "Focus session", type: "work" },
-            { id: "l2_w2", text: "Side Project (Dev)", completed: false, type: "code" }
+            { id: "l_m1", text: "Wake Up Early", completed: false, subtext: "Before sunrise", type: "core" },
+            { id: "l_m2", text: "Morning Prayers / Meditation", completed: false, type: "spirit" },
+            { id: "l_m3", text: "Family Breakfast", completed: false, type: "social" },
+            { id: "l_m4", text: "House Chores", completed: false, subtext: "Tidy up", type: "home" }
         ],
         afternoon: [
-            { id: "l2_a1", text: "Zohor @ Mosque", completed: false, subtext: "Go out", type: "mosque" },
-            { id: "l2_a2", text: "Talk with a friend", completed: false, type: "heart-sm" },
-            { id: "l2_a3", text: "Chores", completed: false, type: "home" },
-            { id: "l2_a4", text: "Afternoon Work", completed: false, type: "work" }
+            { id: "l_a1", text: "Midday Prayers / Reflection", completed: false, type: "spirit" },
+            { id: "l_a2", text: "Grocery / Errands", completed: false, type: "home" },
+            { id: "l_a3", text: "Connect with Friends", completed: false, type: "social-call" }
         ],
         evening: [
-            { id: "l2_e1", text: "Asar @ Mosque", completed: false, type: "mosque" },
-            { id: "l2_e2", text: "Prepare Dinner", completed: false, subtext: "Cook healthy", type: "food" },
-            { id: "l2_e3", text: "Work Wrap-up", completed: false, type: "work" }
+            { id: "l_e1", text: "Evening Prayers", completed: false, type: "spirit" },
+            { id: "l_e2", text: "Cook Dinner", completed: false, type: "food" },
+            { id: "l_e3", text: "Family Time", completed: false, subtext: "No phones", type: "heart-sm" }
         ],
         night: [
-            { id: "l2_n1", text: "Maghrib Prayer", completed: false, type: "prayer" },
-            { id: "l2_n2", text: "Recite Quran", completed: false, type: "spirit" },
-            { id: "l2_n3", text: "Active Leisure", completed: false, subtext: "Film / Series", type: "film" },
-            { id: "l2_n4", text: "Call Parents", completed: false, type: "social-call" },
-            { id: "l2_n5", text: "Isyak Prayer", completed: false, type: "prayer" },
-            { id: "l2_n6", text: "Sleep and Personal Time", completed: false, type: "social" }
+            { id: "l_n1", text: "Night Prayers", completed: false, type: "spirit" },
+            { id: "l_n2", text: "Journaling", completed: false, subtext: "Gratitude log", type: "core" },
+            { id: "l_n3", text: "Read Fiction / Relax", completed: false, type: "chill" },
+            { id: "l_n4", text: "Sleep", completed: false, subtext: "7-8 hours", type: "restore" }
         ]
     },
-    3: {
+    3: { // Health / Wellness Context
         morning: [
-            { id: "l3_m1", text: "Wake before Subuh", completed: false, type: "core", highlight: true },
-            { id: "l3_m2", text: "Subuh @ MOSQUE", completed: false, type: "mosque" },
-            { id: "l3_m3", text: "Hard Workout", completed: false, subtext: "NON-NEGOTIABLE", type: "fitness-hard" },
-            { id: "l3_m4", text: "Bath & Brunch", completed: false, type: "restore" }
-        ],
-        work_block: [
-            { id: "l3_w1", text: "Degree Work", completed: false, subtext: "Deep focus", type: "work" },
-            { id: "l3_w2", text: "Side Project", completed: false, subtext: "Build & Ship", type: "code" }
+            { id: "h_m1", text: "Hydrate", completed: false, subtext: "500ml Water", type: "health" },
+            { id: "h_m2", text: "Stretching / Yoga", completed: false, type: "fitness" },
+            { id: "h_m3", text: "Cardio Session", completed: false, subtext: "Running or Walk", type: "fitness-hard" },
+            { id: "h_m4", text: "Healthy Breakfast", completed: false, subtext: "High Protein", type: "food" }
         ],
         afternoon: [
-            { id: "l3_a1", text: "Zohor @ MOSQUE", completed: false, type: "mosque" },
-            { id: "l3_a2", text: "Talk with a friend", completed: false, type: "heart-sm" },
-            { id: "l3_a3", text: "Chores", completed: false, type: "home" },
-            { id: "l3_a4", text: "Afternoon Work", completed: false, type: "work" }
+            { id: "h_a1", text: "Mental Health Break", completed: false, subtext: "Breathing exercises", type: "mind" },
+            { id: "h_a2", text: "Healthy Lunch", completed: false, subtext: "Greens & Fiber", type: "food" },
+            { id: "h_a3", text: "Movement Snack", completed: false, subtext: "Walk or Stretch", type: "fitness" }
         ],
         evening: [
-            { id: "l3_e1", text: "Asar @ MOSQUE", completed: false, type: "mosque" },
-            { id: "l3_e2", text: "Prepare Dinner", completed: false, type: "food" },
-            { id: "l3_e3", text: "Work Wrap-up", completed: false, type: "work" }
+            { id: "h_e1", text: "Strength Training", completed: false, subtext: "Weights or Calisthenics", type: "fitness-hard" },
+            { id: "h_e2", text: "Post-workout Meal", completed: false, type: "food" },
+            { id: "h_e3", text: "Digital Detox", completed: false, subtext: "Reduce blue light", type: "health" }
         ],
         night: [
-            { id: "l3_n1", text: "Maghrib @ MOSQUE", completed: false, type: "mosque" },
-            { id: "l3_n2", text: "Recite Quran", completed: false, type: "spirit" },
-            { id: "l3_n3", text: "EXTRA WORK", completed: false, subtext: "No games. Pure progress.", type: "grind" },
-            { id: "l3_n4", text: "Isyak @ MOSQUE", completed: false, type: "mosque" },
-            { id: "l3_n5", text: "Sleep and Personal Time", completed: false, type: "social" }
+            { id: "h_n1", text: "Magnesium / Supplements", completed: false, type: "health" },
+            { id: "h_n2", text: "Skincare Routine", completed: false, type: "restore" },
+            { id: "h_n3", text: "Meditation / Sleep Prep", completed: false, type: "mind" }
         ]
     }
 };
