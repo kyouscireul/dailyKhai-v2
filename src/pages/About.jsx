@@ -68,7 +68,7 @@ const About = () => {
                         The app is 100% free. However, if you find it useful, please consider leaving a tip. Even as small as <span className="font-black text-amber-600">RM 1</span> helps me keep going!
                     </p>
                     <button className="w-full bg-amber-100 text-amber-700 font-bold py-3 rounded-xl hover:bg-amber-200 transition-colors flex items-center justify-center gap-2">
-                        Tip
+                        Donate / Tip
                     </button>
                     {/* Placeholder for actual payment link if provided later */}
                 </div>
