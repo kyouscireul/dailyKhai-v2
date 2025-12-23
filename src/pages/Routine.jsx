@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Sun, CloudSun, Sunset, Moon, RefreshCw, Download, Users, Flame, Briefcase, Edit, Check } from 'lucide-react';
 import Section from '../components/Section';
 import Footer from '../components/Footer';
+import { useTheme } from '../context/ThemeContext';
 import { defaultRoutines } from '../data/routineData';
 
 const Routine = () => {
+    const { theme, setTheme } = useTheme();
     const [level, setLevel] = useState(2);
     const [isEditing, setIsEditing] = useState(false);
     const [userName, setUserName] = useState(() => localStorage.getItem('khai_userName') || 'Khai');
@@ -57,6 +59,10 @@ const Routine = () => {
     useEffect(() => {
         localStorage.setItem('khai_level_data', JSON.stringify(levelData));
     }, [levelData]);
+
+    const toggleTheme = () => {
+        setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+    };
 
     const toggleTask = (section, taskId) => {
         setTasks(prev => ({ ...prev, [section]: prev[section].map(task => task.id === taskId ? { ...task, completed: !task.completed } : task) }));
@@ -123,9 +129,9 @@ const Routine = () => {
     const progress = calculateProgress();
 
     return (
-        <div className="min-h-screen font-sans pb-24 bg-slate-50 select-none">
+        <div className="min-h-screen font-sans pb-24 bg-slate-50 dark:bg-slate-950 select-none transition-colors duration-300">
             <div
-                className="bg-white shadow-sm sticky top-0 z-10"
+                className="bg-white dark:bg-slate-900 shadow-sm sticky top-0 z-10 border-b border-transparent dark:border-slate-800 transition-colors duration-300"
                 style={{ paddingTop: "max(0px, env(safe-area-inset-top))" }}
             >
                 <div className="max-w-md mx-auto px-5 pt-5 pb-2">
@@ -136,10 +142,10 @@ const Routine = () => {
                                     type="text"
                                     value={userName}
                                     onChange={(e) => setUserName(e.target.value)}
-                                    className="text-2xl font-black text-slate-800 tracking-tight bg-slate-100 border-b-2 border-slate-300 focus:outline-none focus:border-indigo-500 w-full"
+                                    className="text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight bg-slate-100 dark:bg-slate-800 border-b-2 border-slate-300 dark:border-slate-700 focus:outline-none focus:border-indigo-500 w-full transition-colors"
                                 />
                             ) : (
-                                <h1 className="text-2xl font-black text-slate-800 tracking-tight">{userName}'s Routine</h1>
+                                <h1 className="text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight transition-colors">{userName}'s Routine</h1>
                             )}
                             {isEditing ? (
                                 <input
@@ -155,13 +161,19 @@ const Routine = () => {
                         </div>
                         <div className="flex gap-2">
                             <button
+                                onClick={toggleTheme}
+                                className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-400 hover:text-amber-500 dark:hover:text-indigo-400"
+                            >
+                                {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
+                            </button>
+                            <button
                                 onClick={() => setIsEditing(!isEditing)}
-                                className={`p-2 rounded-full transition-colors ${isEditing ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                                className={`p-2 rounded-full transition-colors ${isEditing ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
                             >
                                 {isEditing ? <Check size={18} /> : <Edit size={18} />}
                             </button>
-                            <button onClick={resetDay} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors">
-                                <RefreshCw size={18} className="text-slate-600" />
+                            <button onClick={resetDay} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                                <RefreshCw size={18} className="text-slate-600 dark:text-slate-400" />
                             </button>
                         </div>
                     </div>
@@ -174,11 +186,11 @@ const Routine = () => {
                         </button>
                     )}
 
-                    <div className="flex bg-slate-100 p-1 rounded-xl mb-4">
+                    <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mb-4 transition-colors">
                         {[1, 2, 3].map(lvl => (
                             <button
                                 key={lvl}
-                                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${level === lvl ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${level === lvl ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-300 shadow-sm' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
                                 onClick={() => setLevel(lvl)}
                             >
                                 L{lvl}
@@ -186,7 +198,7 @@ const Routine = () => {
                         ))}
                     </div>
                     <div className="flex items-center gap-3 mb-2">
-                        <div className="flex-1 h-3 bg-slate-200 rounded-full overflow-hidden">
+                        <div className="flex-1 h-3 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden transition-colors">
                             <div
                                 className={`h-full transition-all duration-500 ease-out ${level === 3 ? 'bg-purple-600' : level === 2 ? 'bg-indigo-500' : 'bg-blue-500'}`}
                                 style={{ width: `${progress}%` }}
@@ -218,7 +230,7 @@ const Routine = () => {
                 {tasks.evening && <Section title="Evening" icon={Sunset} colorClass={level === 3 ? "bg-purple-100" : "bg-orange-100"} dataKey="evening" items={tasks.evening} onToggle={toggleTask} isEditing={isEditing} onAdd={addTask} onEdit={editTask} onDelete={deleteTask} />}
                 {tasks.night && <Section title="Night" icon={Moon} colorClass={level === 3 ? "bg-purple-100" : "bg-indigo-100"} dataKey="night" items={tasks.night} onToggle={toggleTask} isEditing={isEditing} onAdd={addTask} onEdit={editTask} onDelete={deleteTask} />}
 
-                <div className="text-center p-6 text-slate-400 text-xs">
+                <div className="text-center p-6 text-slate-400 dark:text-slate-600 text-xs transition-colors">
                     <p>{level === 1 ? '"Consistency > Intensity"' : level === 2 ? '"Environment shapes discipline."' : '"No excuses. Pure execution."'}</p>
                 </div>
             </div>

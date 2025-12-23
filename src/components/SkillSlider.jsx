@@ -3,7 +3,7 @@ import { Minus, Plus } from 'lucide-react';
 
 const SkillSlider = ({ label, value, onChange, disabled }) => (
     <div className="mb-5 last:mb-0">
-        <div className="flex justify-between text-xs font-bold text-slate-600 mb-2">
+        <div className="flex justify-between text-xs font-bold text-slate-600 dark:text-slate-400 mb-2 transition-colors">
             <span className={disabled ? 'opacity-70' : ''}>{label}</span>
             <span className={disabled ? 'opacity-70' : ''}>{value}%</span>
         </div>
@@ -11,11 +11,11 @@ const SkillSlider = ({ label, value, onChange, disabled }) => (
             <button
                 onClick={() => !disabled && onChange(Math.max(0, value - 1))}
                 disabled={disabled}
-                className="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-lg text-slate-600 font-bold hover:bg-slate-200 active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed"
+                className="w-8 h-8 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed"
             >
                 <Minus size={14} />
             </button>
-            <div className="flex-1 h-4 bg-slate-100 rounded-full overflow-hidden relative">
+            <div className="flex-1 h-4 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden relative transition-colors">
                 <div className="h-full bg-indigo-500 transition-all duration-300 ease-out" style={{ width: `${value}%` }} />
                 <input
                     type="range"
@@ -30,7 +30,7 @@ const SkillSlider = ({ label, value, onChange, disabled }) => (
             <button
                 onClick={() => !disabled && onChange(Math.min(100, value + 1))}
                 disabled={disabled}
-                className="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-lg text-slate-600 font-bold hover:bg-slate-200 active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed"
+                className="w-8 h-8 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed"
             >
                 <Plus size={14} />
             </button>

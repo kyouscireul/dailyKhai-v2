@@ -57,21 +57,94 @@ const AcademicTracker = () => {
     const totalProgress = calculateTotalProgress();
 
     // Color mapping for Tailwind classes
+    // Color mapping for Tailwind classes (Extended with dark mode variants)
     const colorStyles = {
-        indigo: { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-100', bar: 'bg-indigo-500', lightBg: 'bg-indigo-50/50', check: 'bg-indigo-500 border-indigo-500' },
-        emerald: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100', bar: 'bg-emerald-500', lightBg: 'bg-emerald-50/50', check: 'bg-emerald-500 border-emerald-500' },
-        violet: { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-100', bar: 'bg-violet-500', lightBg: 'bg-violet-50/50', check: 'bg-violet-500 border-violet-500' },
-        rose: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-100', bar: 'bg-rose-500', lightBg: 'bg-rose-50/50', check: 'bg-rose-500 border-rose-500' },
-        amber: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100', bar: 'bg-amber-500', lightBg: 'bg-amber-50/50', check: 'bg-amber-500 border-amber-500' },
-        sky: { bg: 'bg-sky-50', text: 'text-sky-700', border: 'border-sky-100', bar: 'bg-sky-500', lightBg: 'bg-sky-50/50', check: 'bg-sky-500 border-sky-500' },
-        pink: { bg: 'bg-pink-50', text: 'text-pink-700', border: 'border-pink-100', bar: 'bg-pink-500', lightBg: 'bg-pink-50/50', check: 'bg-pink-500 border-pink-500' },
-        blue: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-100', bar: 'bg-blue-500', lightBg: 'bg-blue-50/50', check: 'bg-blue-500 border-blue-500' },
+        indigo: {
+            bg: 'bg-indigo-50 dark:bg-indigo-950/30',
+            text: 'text-indigo-700 dark:text-indigo-300',
+            border: 'border-indigo-100 dark:border-indigo-900/50',
+            bar: 'bg-indigo-500 dark:bg-indigo-400',
+            lightBg: 'bg-indigo-50/50 dark:bg-indigo-900/20',
+            check: 'bg-indigo-500 border-indigo-500 dark:bg-indigo-400 dark:border-indigo-400',
+            hover: 'hover:bg-indigo-50 dark:hover:bg-indigo-900/20',
+            active: 'bg-indigo-50/50 dark:bg-indigo-900/10'
+        },
+        emerald: {
+            bg: 'bg-emerald-50 dark:bg-emerald-950/30',
+            text: 'text-emerald-700 dark:text-emerald-300',
+            border: 'border-emerald-100 dark:border-emerald-900/50',
+            bar: 'bg-emerald-500 dark:bg-emerald-400',
+            lightBg: 'bg-emerald-50/50 dark:bg-emerald-900/20',
+            check: 'bg-emerald-500 border-emerald-500 dark:bg-emerald-400 dark:border-emerald-400',
+            hover: 'hover:bg-emerald-50 dark:hover:bg-emerald-900/20',
+            active: 'bg-emerald-50/50 dark:bg-emerald-900/10'
+        },
+        violet: {
+            bg: 'bg-violet-50 dark:bg-violet-950/30',
+            text: 'text-violet-700 dark:text-violet-300',
+            border: 'border-violet-100 dark:border-violet-900/50',
+            bar: 'bg-violet-500 dark:bg-violet-400',
+            lightBg: 'bg-violet-50/50 dark:bg-violet-900/20',
+            check: 'bg-violet-500 border-violet-500 dark:bg-violet-400 dark:border-violet-400',
+            hover: 'hover:bg-violet-50 dark:hover:bg-violet-900/20',
+            active: 'bg-violet-50/50 dark:bg-violet-900/10'
+        },
+        rose: {
+            bg: 'bg-rose-50 dark:bg-rose-950/30',
+            text: 'text-rose-700 dark:text-rose-300',
+            border: 'border-rose-100 dark:border-rose-900/50',
+            bar: 'bg-rose-500 dark:bg-rose-400',
+            lightBg: 'bg-rose-50/50 dark:bg-rose-900/20',
+            check: 'bg-rose-500 border-rose-500 dark:bg-rose-400 dark:border-rose-400',
+            hover: 'hover:bg-rose-50 dark:hover:bg-rose-900/20',
+            active: 'bg-rose-50/50 dark:bg-rose-900/10'
+        },
+        amber: {
+            bg: 'bg-amber-50 dark:bg-amber-950/30',
+            text: 'text-amber-700 dark:text-amber-300',
+            border: 'border-amber-100 dark:border-amber-900/50',
+            bar: 'bg-amber-500 dark:bg-amber-400',
+            lightBg: 'bg-amber-50/50 dark:bg-amber-900/20',
+            check: 'bg-amber-500 border-amber-500 dark:bg-amber-400 dark:border-amber-400',
+            hover: 'hover:bg-amber-50 dark:hover:bg-amber-900/20',
+            active: 'bg-amber-50/50 dark:bg-amber-900/10'
+        },
+        sky: {
+            bg: 'bg-sky-50 dark:bg-sky-950/30',
+            text: 'text-sky-700 dark:text-sky-300',
+            border: 'border-sky-100 dark:border-sky-900/50',
+            bar: 'bg-sky-500 dark:bg-sky-400',
+            lightBg: 'bg-sky-50/50 dark:bg-sky-900/20',
+            check: 'bg-sky-500 border-sky-500 dark:bg-sky-400 dark:border-sky-400',
+            hover: 'hover:bg-sky-50 dark:hover:bg-sky-900/20',
+            active: 'bg-sky-50/50 dark:bg-sky-900/10'
+        },
+        pink: {
+            bg: 'bg-pink-50 dark:bg-pink-950/30',
+            text: 'text-pink-700 dark:text-pink-300',
+            border: 'border-pink-100 dark:border-pink-900/50',
+            bar: 'bg-pink-500 dark:bg-pink-400',
+            lightBg: 'bg-pink-50/50 dark:bg-pink-900/20',
+            check: 'bg-pink-500 border-pink-500 dark:bg-pink-400 dark:border-pink-400',
+            hover: 'hover:bg-pink-50 dark:hover:bg-pink-900/20',
+            active: 'bg-pink-50/50 dark:bg-pink-900/10'
+        },
+        blue: {
+            bg: 'bg-blue-50 dark:bg-blue-950/30',
+            text: 'text-blue-700 dark:text-blue-300',
+            border: 'border-blue-100 dark:border-blue-900/50',
+            bar: 'bg-blue-500 dark:bg-blue-400',
+            lightBg: 'bg-blue-50/50 dark:bg-blue-900/20',
+            check: 'bg-blue-500 border-blue-500 dark:bg-blue-400 dark:border-blue-400',
+            hover: 'hover:bg-blue-50 dark:hover:bg-blue-900/20',
+            active: 'bg-blue-50/50 dark:bg-blue-900/10'
+        },
     };
 
     return (
         <div className="mt-8 space-y-6">
             <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <h3 className="text-lg font-black text-slate-800 dark:text-slate-200 tracking-tight flex items-center gap-2 transition-colors">
                     <GraduationCap size={20} className="text-blue-600" />
                     Semester 5 Tracker
                 </h3>
@@ -101,10 +174,10 @@ const AcademicTracker = () => {
                 const styles = colorStyles[subject.color] || colorStyles.blue;
 
                 return (
-                    <div key={subject.id} className={`bg-white rounded-2xl border ${styles.border} shadow-sm overflow-hidden`}>
-                        <div className={`${styles.lightBg} px-4 py-3 border-b ${styles.border} flex justify-between items-center`}>
-                            <h4 className={`font-bold ${styles.text}`}>{subject.name}</h4>
-                            <span className="text-xs font-bold text-slate-500 bg-white px-2 py-1 rounded-md border border-slate-100 shadow-sm">
+                    <div key={subject.id} className={`bg-white dark:bg-slate-900 rounded-2xl border ${styles.border} shadow-sm overflow-hidden transition-colors duration-300`}>
+                        <div className={`${styles.lightBg} px-4 py-3 border-b ${styles.border} flex justify-between items-center transition-colors`}>
+                            <h4 className={`font-bold ${styles.text} transition-colors`}>{subject.name}</h4>
+                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 px-2 py-1 rounded-md border border-slate-100 dark:border-slate-700 shadow-sm transition-colors">
                                 {earned}% / {total}%
                             </span>
                         </div>
@@ -119,19 +192,19 @@ const AcademicTracker = () => {
                                         key={assess.id}
                                         onClick={() => toggleAssessment(subject.id, assess.id)}
                                         className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all select-none relative overflow-hidden
-                                            ${isDone ? 'bg-slate-50 opacity-75' : 'hover:bg-slate-50'}
-                                            ${isLeading ? 'border border-red-100 bg-red-50/30' : ''}`}
+                                            ${isDone ? styles.active + ' opacity-75' : styles.hover}
+                                            ${isLeading ? 'border border-red-100 dark:border-red-900/50 bg-red-50/30' : ''}`}
                                     >
                                         <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors
-                                            ${isDone ? styles.check + ' text-white' : 'border-slate-200 bg-white'}`}>
+                                            ${isDone ? styles.check + ' text-white' : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800'}`}>
                                             {isDone && <Check size={12} strokeWidth={3} />}
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex justify-between items-start pr-8">
-                                                <span className={`text-sm font-medium transition-colors ${isDone ? 'text-slate-400 line-through decoration-slate-300' : 'text-slate-700'} ${isLeading ? 'text-red-800' : ''}`}>
+                                                <span className={`text-sm font-medium transition-colors ${isDone ? 'text-slate-400 dark:text-slate-500 line-through decoration-slate-300 dark:decoration-slate-600' : 'text-slate-700 dark:text-slate-200'} ${isLeading ? 'text-red-800 dark:text-red-300' : ''}`}>
                                                     {assess.name}
                                                 </span>
-                                                <span className="text-xs font-bold text-slate-400 ml-2 whitespace-nowrap">{assess.weight}%</span>
+                                                <span className="text-xs font-bold text-slate-400 dark:text-slate-500 ml-2 whitespace-nowrap">{assess.weight}%</span>
                                             </div>
                                         </div>
                                     </div>
@@ -139,7 +212,7 @@ const AcademicTracker = () => {
                             })}
                         </div>
                         {/* Progress Bar inside card */}
-                        <div className="h-1.5 bg-slate-100 w-full">
+                        <div className="h-1.5 bg-slate-100 dark:bg-slate-800 w-full transition-colors">
                             <div
                                 className={`h-full ${styles.bar} transition-all duration-500`}
                                 style={{ width: `${Math.min(100, (earned / total) * 100)}%` }}

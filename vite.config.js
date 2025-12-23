@@ -14,7 +14,8 @@ export default defineConfig({
         name: "Khai's Routine",
         short_name: 'DailyKhai',
         description: 'My daily routine and personal use PWA',
-        theme_color: '#F8FAFC',
+        theme_color: '#020617',
+        background_color: '#020617',
         icons: [
           {
             src: 'icon.png',

@@ -49,11 +49,11 @@ const Goals = () => {
     ];
 
     return (
-        <div className="min-h-screen font-sans pb-24 bg-slate-50 select-none">
-            <div className="bg-white shadow-sm sticky top-0 z-10" style={{ paddingTop: "calc(env(safe-area-inset-top) + 10px)" }}>
+        <div className="min-h-screen font-sans pb-24 bg-slate-50 dark:bg-slate-950 select-none transition-colors duration-300">
+            <div className="bg-white dark:bg-slate-900 shadow-sm sticky top-0 z-10 transition-colors duration-300" style={{ paddingTop: "calc(env(safe-area-inset-top) + 10px)" }}>
                 <div className="max-w-md mx-auto px-4 pt-2 pb-3">
                     <div>
-                        <h1 className="text-2xl font-black text-slate-800 tracking-tight">Goal Board</h1>
+                        <h1 className="text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight transition-colors">Goal Board</h1>
                         <p className="text-slate-500 text-sm font-medium">Vision & Progress</p>
                     </div>
                 </div>
@@ -65,7 +65,7 @@ const Goals = () => {
                         <Link
                             key={pillar.id}
                             to={`/pillar/${pillar.id}`}
-                            className="bg-white border border-slate-200 rounded-lg p-3 text-center text-sm font-bold text-slate-600 shadow-sm hover:border-indigo-300 hover:text-indigo-600 transition-colors block"
+                            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-3 text-center text-sm font-bold text-slate-600 dark:text-slate-400 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors block"
                         >
                             {pillar.label}
                         </Link>
@@ -81,14 +81,14 @@ const Goals = () => {
                     onInputChange={handleSavingChange}
                 />
 
-                <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors duration-300">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                        <h2 className="text-sm font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-2 transition-colors">
                             <Layers size={16} /> Skill Progression
                         </h2>
                         <button
                             onClick={() => setIsSkillEditing(!isSkillEditing)}
-                            className={`p-2 rounded-lg transition-all ${isSkillEditing ? 'bg-indigo-100 text-indigo-600' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'}`}
+                            className={`p-2 rounded-lg transition-all ${isSkillEditing ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300' : 'text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300'}`}
                         >
                             {isSkillEditing ? <Check size={18} /> : <Pencil size={18} />}
                         </button>
