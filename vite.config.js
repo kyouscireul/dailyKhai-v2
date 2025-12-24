@@ -4,15 +4,15 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/dailyKhai-v2/', // Matches standard GitHub repo naming for "dailyKhai v2"
+  // base: '/dailyKhai-v2/', // Removed for Vercel deployment (root domain)
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icon.png'],
       manifest: {
-        name: "Khai's Routine",
-        short_name: 'DailyKhai',
+        name: "Pillarize",
+        short_name: 'Pillarize',
         description: 'My daily routine and personal use PWA',
         theme_color: '#020617',
         background_color: '#020617',

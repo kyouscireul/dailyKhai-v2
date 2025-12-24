@@ -1,45 +1,109 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
+import { supabase } from '../../lib/supabaseClient';
 
 const FocusQueue = () => {
-    const [queue, setQueue] = useState(() => {
-        const saved = localStorage.getItem('khai_focus_queue');
-        return saved ? JSON.parse(saved) : [];
-    });
+    const [queue, setQueue] = useState([]);
     const [inputValue, setInputValue] = useState('');
+    const [loading, setLoading] = useState(true);
 
+    // Fetch tasks on mount
     useEffect(() => {
-        localStorage.setItem('khai_focus_queue', JSON.stringify(queue));
-    }, [queue]);
+        fetchTasks();
+    }, []);
 
-    const addTask = (e) => {
-        e.preventDefault();
-        if (!inputValue.trim()) return;
+    const fetchTasks = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('tasks')
+                .select('*')
+                .order('created_at', { ascending: true });
 
-        const newTask = {
-            id: Date.now(),
-            text: inputValue.trim(),
-            completed: false,
-            createdAt: new Date().toISOString()
-        };
-
-        setQueue(prev => [...prev, newTask]);
-        setInputValue('');
-    };
-
-    const toggleTask = (id) => {
-        setQueue(prev => prev.map(task =>
-            task.id === id ? { ...task, completed: !task.completed } : task
-        ));
-    };
-
-    const clearCompleted = () => {
-        if (confirm('Clear all completed tasks?')) {
-            setQueue(prev => prev.filter(task => !task.completed));
+            if (error) throw error;
+            setQueue(data || []);
+        } catch (error) {
+            console.error('Error fetching tasks:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const hasCompletedTasks = queue.some(t => t.completed);
+    const addTask = async (e) => {
+        e.preventDefault();
+        if (!inputValue.trim()) return;
+
+        const optimisiticTask = {
+            id: Date.now(), // Temp ID
+            content: inputValue.trim(),
+            is_completed: false
+        };
+
+        // Optimistic update
+        setQueue(prev => [...prev, optimisiticTask]);
+        setInputValue('');
+
+        try {
+            const { data, error } = await supabase
+                .from('tasks')
+                .insert([{ content: inputValue.trim() }])
+                .select()
+                .single();
+
+            if (error) throw error;
+
+            // Replace temp task with real data
+            setQueue(prev => prev.map(t => t.id === optimisiticTask.id ? data : t));
+        } catch (error) {
+            console.error('Error adding task:', error);
+            // Revert optimistic update on error
+            setQueue(prev => prev.filter(t => t.id !== optimisiticTask.id));
+        }
+    };
+
+    const toggleTask = async (task) => {
+        // Optimistic update
+        const updatedStatus = !task.is_completed;
+        setQueue(prev => prev.map(t =>
+            t.id === task.id ? { ...t, is_completed: updatedStatus } : t
+        ));
+
+        try {
+            const { error } = await supabase
+                .from('tasks')
+                .update({ is_completed: updatedStatus })
+                .eq('id', task.id);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error toggling task:', error);
+            // Revert
+            setQueue(prev => prev.map(t =>
+                t.id === task.id ? { ...t, is_completed: !updatedStatus } : t
+            ));
+        }
+    };
+
+    const clearCompleted = async () => {
+        if (!confirm('Clear all completed tasks?')) return;
+
+        // Optimistic update
+        const completedIds = queue.filter(t => t.is_completed).map(t => t.id);
+        setQueue(prev => prev.filter(t => !t.is_completed));
+
+        try {
+            const { error } = await supabase
+                .from('tasks')
+                .delete()
+                .in('id', completedIds);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error clearing tasks:', error);
+            fetchTasks(); // Reload on error
+        }
+    };
+
+    const hasCompletedTasks = queue.some(t => t.is_completed);
 
     return (
         <div className="mt-8">

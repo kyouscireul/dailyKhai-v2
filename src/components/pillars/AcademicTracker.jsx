@@ -1,37 +1,78 @@
 import React, { useState, useEffect } from 'react';
 import { Check, GraduationCap } from 'lucide-react';
-import { academicData } from '../../data/academicData';
+import { supabase } from '../../lib/supabaseClient';
 
 const AcademicTracker = () => {
-    const [completed, setCompleted] = useState(() => {
-        const saved = localStorage.getItem('khai_academic_tracker');
-        return saved ? JSON.parse(saved) : {};
-    });
+    const [subjects, setSubjects] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        localStorage.setItem('khai_academic_tracker', JSON.stringify(completed));
-    }, [completed]);
+        fetchAcademicData();
+    }, []);
 
-    const toggleAssessment = (subjectId, assessmentId) => {
-        setCompleted(prev => {
-            const key = `${subjectId}-${assessmentId}`;
-            const newCompleted = { ...prev };
-            if (newCompleted[key]) {
-                delete newCompleted[key];
-            } else {
-                newCompleted[key] = true;
-            }
-            return newCompleted;
-        });
+    const fetchAcademicData = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('academic_subjects')
+                .select(`
+                    *,
+                    academic_assessments (
+                        *
+                    )
+                `)
+                .order('name');
+            // Note: You might want a specific order column later
+
+            if (error) throw error;
+
+            // sort assessments by name or created_at if needed, currently just DB order
+            setSubjects(data);
+        } catch (error) {
+            console.error('Error fetching academic data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const toggleAssessment = async (assessment) => {
+        // Optimistic UI Update
+        setSubjects(prevSubjects =>
+            prevSubjects.map(subj => ({
+                ...subj,
+                academic_assessments: subj.academic_assessments.map(a =>
+                    a.id === assessment.id ? { ...a, is_completed: !a.is_completed } : a
+                )
+            }))
+        );
+
+        try {
+            const { error } = await supabase
+                .from('academic_assessments')
+                .update({ is_completed: !assessment.is_completed })
+                .eq('id', assessment.id);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Error toggling assessment:', error);
+            // Revert on error
+            setSubjects(prevSubjects =>
+                prevSubjects.map(subj => ({
+                    ...subj,
+                    academic_assessments: subj.academic_assessments.map(a =>
+                        a.id === assessment.id ? { ...a, is_completed: assessment.is_completed } : a
+                    )
+                }))
+            );
+        }
     };
 
     const calculateSubjectProgress = (subject) => {
         let totalWeight = 0;
         let earnedWeight = 0;
 
-        subject.assessments.forEach(assess => {
+        subject.academic_assessments.forEach(assess => {
             totalWeight += assess.weight;
-            if (completed[`${subject.id}-${assess.id}`]) {
+            if (assess.is_completed) {
                 earnedWeight += assess.weight;
             }
         });
@@ -43,7 +84,7 @@ const AcademicTracker = () => {
         let totalPossible = 0;
         let totalEarned = 0;
 
-        academicData.forEach(subject => {
+        subjects.forEach(subject => {
             const { earned, total } = calculateSubjectProgress(subject);
             totalPossible += total;
             totalEarned += earned;
@@ -56,7 +97,6 @@ const AcademicTracker = () => {
 
     const totalProgress = calculateTotalProgress();
 
-    // Color mapping for Tailwind classes
     // Color mapping for Tailwind classes (Extended with dark mode variants)
     const colorStyles = {
         indigo: {
@@ -141,6 +181,10 @@ const AcademicTracker = () => {
         },
     };
 
+    if (loading) {
+        return <div className="text-center py-10 text-slate-400">Loading academic data...</div>;
+    }
+
     return (
         <div className="mt-8 space-y-6">
             <div className="flex items-center justify-between mb-2">
@@ -151,7 +195,7 @@ const AcademicTracker = () => {
             </div>
 
             {/* Main Progress Card */}
-            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 text-white shadow-lg shadow-blue-200">
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/20 transition-all">
                 <div className="flex justify-between items-end mb-4">
                     <div>
                         <p className="text-blue-100 text-sm font-bold uppercase tracking-wider mb-1">Total Carry Marks</p>
@@ -169,7 +213,7 @@ const AcademicTracker = () => {
                 </div>
             </div>
 
-            {academicData.map(subject => {
+            {subjects.map(subject => {
                 const { earned, total } = calculateSubjectProgress(subject);
                 const styles = colorStyles[subject.color] || colorStyles.blue;
 
@@ -183,14 +227,14 @@ const AcademicTracker = () => {
                         </div>
 
                         <div className="p-2">
-                            {subject.assessments.map(assess => {
-                                const isDone = completed[`${subject.id}-${assess.id}`];
-                                const isLeading = assess.isLeading;
+                            {subject.academic_assessments.map(assess => {
+                                const isDone = assess.is_completed;
+                                const isLeading = assess.is_leading;
 
                                 return (
                                     <div
                                         key={assess.id}
-                                        onClick={() => toggleAssessment(subject.id, assess.id)}
+                                        onClick={() => toggleAssessment(assess)}
                                         className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all select-none relative overflow-hidden
                                             ${isDone ? styles.active + ' opacity-75' : styles.hover}
                                             ${isLeading ? 'border border-red-100 dark:border-red-900/50 bg-red-50/30' : ''}`}

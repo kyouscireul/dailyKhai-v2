@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { supabase } from '../lib/supabaseClient';
 import { Layers, Pencil, Check } from 'lucide-react';
 import GoalCard from '../components/GoalCard';
 import SkillSlider from '../components/SkillSlider';
@@ -37,16 +38,35 @@ const Goals = () => {
         if (!isNaN(num)) setGoals(prev => ({ ...prev, savings: num }));
     };
 
-    const pillars = [
-        { id: 'focus', label: 'Focus', file: 'focus.html' },
-        { id: 'clarity', label: 'Clarity', file: 'clarity.html' },
-        { id: 'streak', label: 'Streak', file: 'streak.html' },
-        { id: 'physical', label: 'Physical', file: 'physical.html' },
-        { id: 'academic', label: 'Academic', file: 'academic.html' },
-        { id: 'financial', label: 'Financial', file: 'financial.html' },
-        { id: 'spiritual', label: 'Spiritual', file: 'spiritual.html' },
-        { id: 'emotional', label: 'Emotional', file: 'emotional.html' },
-    ];
+    const [pillars, setPillars] = useState([]);
+    const [loadingPillars, setLoadingPillars] = useState(true);
+
+    useEffect(() => {
+        const fetchPillars = async () => {
+            try {
+                // Assuming we want to fetch all pillars. 
+                // You might want to select specific fields or order them.
+                const { data, error } = await supabase
+                    .from('pillars')
+                    .select('id, type, title')
+                    .order('type'); // Or order by arbitrary 'order' if added
+
+                if (error) throw error;
+                // Transform data if needed to match expected format
+                const formattedPillars = data.map(p => ({
+                    id: p.type, // Using type as ID for routing as per previous logic
+                    label: p.title,
+                }));
+                setPillars(formattedPillars);
+            } catch (error) {
+                console.error('Error fetching pillars:', error);
+            } finally {
+                setLoadingPillars(false);
+            }
+        };
+
+        fetchPillars();
+    }, []);
 
     return (
         <div className="min-h-screen font-sans pb-24 bg-slate-50 dark:bg-slate-950 select-none transition-colors duration-300">
@@ -61,15 +81,21 @@ const Goals = () => {
 
             <div className="max-w-md mx-auto px-4 py-4 space-y-6">
                 <div className="grid grid-cols-2 gap-2">
-                    {pillars.map(pillar => (
-                        <Link
-                            key={pillar.id}
-                            to={`/pillar/${pillar.id}`}
-                            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-3 text-center text-sm font-bold text-slate-600 dark:text-slate-400 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors block"
-                        >
-                            {pillar.label}
-                        </Link>
-                    ))}
+                    {loadingPillars ? (
+                        <div className="col-span-2 text-center text-slate-400 py-4 text-sm">Loading pillars...</div>
+                    ) : pillars.length > 0 ? (
+                        pillars.map(pillar => (
+                            <Link
+                                key={pillar.id}
+                                to={`/pillar/${pillar.id}`}
+                                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-3 text-center text-sm font-bold text-slate-600 dark:text-slate-400 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors block"
+                            >
+                                {pillar.label}
+                            </Link>
+                        ))
+                    ) : (
+                        <div className="col-span-2 text-center text-slate-400 py-4 text-sm">No pillars found.</div>
+                    )}
                 </div>
 
                 <GoalCard
