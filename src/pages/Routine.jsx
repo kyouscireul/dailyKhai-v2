@@ -47,7 +47,7 @@ const Routine = () => {
 
                     if (profile) {
                         if (profile.username) setUserName(profile.username);
-                        if (profile.theme) setTheme(profile.theme);
+                        // if (profile.theme) setTheme(profile.theme); // Keep theme local
                         if (profile.level_data) setLevelData(profile.level_data);
                     }
 
@@ -117,11 +117,11 @@ const Routine = () => {
         return () => clearTimeout(timeout);
     }, [userName, levelData, user]);
 
-    // Theme Save
-    useEffect(() => {
-        if (!user) return;
-        supabase.from('profiles').update({ theme }).eq('id', user.id);
-    }, [theme, user]);
+    // Theme Save - Removed to keep theme local to device
+    // useEffect(() => {
+    //     if (!user) return;
+    //     supabase.from('profiles').update({ theme }).eq('id', user.id);
+    // }, [theme, user]);
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
