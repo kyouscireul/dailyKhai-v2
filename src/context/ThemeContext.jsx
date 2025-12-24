@@ -6,10 +6,13 @@ export const ThemeProvider = ({ children }) => {
     const [theme, setTheme] = useState(() => {
         if (typeof window !== 'undefined' && window.localStorage) {
             const saved = localStorage.getItem('khai_theme');
-            if (saved) return saved;
-            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            // If explicit preference exists, use it
+            if (saved === 'dark' || saved === 'light') return saved;
+            // If 'system' or nothing, prefer system setting but default to stored 'system'
+            if (saved === 'system') return 'system';
         }
-        return 'light';
+        // Fallback to system preference if no stored value
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     });
 
     useEffect(() => {
