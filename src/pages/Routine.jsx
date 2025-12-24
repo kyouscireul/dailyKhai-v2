@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, CloudSun, Sunset, Moon, RefreshCw, Download, Users, Flame, Briefcase, Edit, Check } from 'lucide-react';
+import { Sun, CloudSun, Sunset, Moon, RefreshCw, Download, Users, Flame, Briefcase, Edit, Check, LogOut } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
+import { useNavigate } from 'react-router-dom';
 import Section from '../components/Section';
 import Footer from '../components/Footer';
 import { useTheme } from '../context/ThemeContext';
@@ -9,63 +11,143 @@ const Routine = () => {
     const { theme, setTheme } = useTheme();
     const [level, setLevel] = useState(2);
     const [isEditing, setIsEditing] = useState(false);
-    const [userName, setUserName] = useState(() => localStorage.getItem('khai_userName') || 'Khai');
-    const [levelData, setLevelData] = useState(() => {
-        const saved = localStorage.getItem('khai_level_data');
-        return saved ? JSON.parse(saved) : {
-            1: { name: "Bare Minimum", goal: "Start small. Just show up." },
-            2: { name: "Growth Mode", goal: "SOCIAL GOAL: Don't stay alone." },
-            3: { name: "Monk Mode", goal: "HIGH DISCIPLINE: No Games." }
-        };
+
+    // Auth & Data State
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null);
+    const [userName, setUserName] = useState('Khai');
+
+    // Data Containers
+    const [allRoutines, setAllRoutines] = useState(defaultRoutines); // Stores data for ALL levels
+    const [tasks, setTasks] = useState(defaultRoutines[2]); // Current View
+
+    const [levelData, setLevelData] = useState({
+        1: { name: "Bare Minimum", goal: "Start small. Just show up." },
+        2: { name: "Growth Mode", goal: "SOCIAL GOAL: Don't stay alone." },
+        3: { name: "Monk Mode", goal: "HIGH DISCIPLINE: No Games." }
     });
+
     const [deferredPrompt, setDeferredPrompt] = useState(null);
+    const navigate = useNavigate();
 
-    // Initialize tasks state
-    const [tasks, setTasks] = useState(() => {
-        const saved = localStorage.getItem(`khaiRoutine_v2_L${level}`);
-        return saved ? JSON.parse(saved) : defaultRoutines[level];
-    });
-
+    // 1. Initial Data Fetch
     useEffect(() => {
-        const handler = (e) => { e.preventDefault(); setDeferredPrompt(e); };
-        window.addEventListener('beforeinstallprompt', handler);
-        return () => window.removeEventListener('beforeinstallprompt', handler);
+        const fetchData = async () => {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                setUser(user);
+
+                if (user) {
+                    // Fetch Profile
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', user.id)
+                        .single();
+
+                    if (profile) {
+                        if (profile.username) setUserName(profile.username);
+                        if (profile.theme) setTheme(profile.theme);
+                        if (profile.level_data) setLevelData(profile.level_data);
+                    }
+
+                    // Fetch Progress
+                    const { data: progress } = await supabase
+                        .from('user_progress')
+                        .select('routine_data')
+                        .eq('id', user.id)
+                        .single();
+
+                    if (progress && progress.routine_data && Object.keys(progress.routine_data).length > 0) {
+                        setAllRoutines(progress.routine_data);
+                        // We will set 'tasks' in the next useEffect when 'level' is stable
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, []);
 
-    const handleInstallClick = async () => {
-        if (!deferredPrompt) return;
+    // 2. Sync Current View when Level or AllRoutines changes
+    useEffect(() => {
+        if (allRoutines[level]) {
+            setTasks(allRoutines[level]);
+        } else {
+            setTasks(defaultRoutines[level]);
+        }
+    }, [level, allRoutines]);
 
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
+    // 3. Save Routine Changes (Debounced ideally, but direct for now)
+    // We need a way to update 'allRoutines' when 'tasks' changes, THEN save to DB.
+    // However, 'tasks' changing triggers this.
 
-        if (outcome === 'accepted') {
-            setDeferredPrompt(null);
+    // Helper to save to DB
+    const saveToSupabase = async (newAllRoutines) => {
+        if (!user) return;
+        try {
+            await supabase
+                .from('user_progress')
+                .update({ routine_data: newAllRoutines })
+                .eq('id', user.id);
+        } catch (error) {
+            console.error('Error saving routine:', error);
         }
     };
 
-    useEffect(() => {
-        const saved = localStorage.getItem(`khaiRoutine_v2_L${level}`);
-        setTasks(saved ? JSON.parse(saved) : defaultRoutines[level]);
-    }, [level]);
+    // Update 'allRoutines' when 'tasks' changes (Local Sync)
+    // AND Save to DB
+    // WARNING: We must be careful not to create an infinite loop.
+    // The flow should be: Interaction -> setTasks -> Update AllRoutines -> Save DB
 
-    useEffect(() => {
-        localStorage.setItem(`khaiRoutine_v2_L${level}`, JSON.stringify(tasks));
-    }, [tasks, level]);
+    // actually, let's change the interaction handlers (toggleTask, etc.) to update AllRoutines directly.
+    // That's cleaner than a useEffect loop.
 
+    // 4. Save Profile Changes
     useEffect(() => {
-        localStorage.setItem('khai_userName', userName);
-    }, [userName]);
+        if (!user) return;
+        const saveProfile = async () => {
+            await supabase.from('profiles').update({ username: userName, level_data: levelData }).eq('id', user.id);
+        };
+        const timeout = setTimeout(saveProfile, 1000); // Debounce
+        return () => clearTimeout(timeout);
+    }, [userName, levelData, user]);
 
+    // Theme Save
     useEffect(() => {
-        localStorage.setItem('khai_level_data', JSON.stringify(levelData));
-    }, [levelData]);
+        if (!user) return;
+        supabase.from('profiles').update({ theme }).eq('id', user.id);
+    }, [theme, user]);
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        navigate('/auth');
+    };
 
     const toggleTheme = () => {
         setTheme(prev => prev === 'dark' ? 'light' : 'dark');
     };
 
+    const updateRoutine = (newTasksForLevel) => {
+        // 1. Update Local View
+        setTasks(newTasksForLevel);
+
+        // 2. Update Global State
+        const newAllRoutines = { ...allRoutines, [level]: newTasksForLevel };
+        setAllRoutines(newAllRoutines);
+
+        // 3. Sync to DB
+        saveToSupabase(newAllRoutines);
+    };
+
     const toggleTask = (section, taskId) => {
-        setTasks(prev => ({ ...prev, [section]: prev[section].map(task => task.id === taskId ? { ...task, completed: !task.completed } : task) }));
+        const newSectionData = tasks[section].map(task => task.id === taskId ? { ...task, completed: !task.completed } : task);
+        const newTasks = { ...tasks, [section]: newSectionData };
+        updateRoutine(newTasks);
     };
 
     const addTask = (section) => {
@@ -78,39 +160,46 @@ const Routine = () => {
             text,
             subtext,
             completed: false,
-            type: 'core' // Default type
+            type: 'core'
         };
 
-        setTasks(prev => ({
-            ...prev,
-            [section]: [...(prev[section] || []), newTask]
-        }));
+        const newTasks = {
+            ...tasks,
+            [section]: [...(tasks[section] || []), newTask]
+        };
+        updateRoutine(newTasks);
     };
 
     const editTask = (section, task) => {
         const newText = prompt("Task Name:", task.text);
-        if (newText === null) return; // Cancelled
+        if (newText === null) return;
         const newSubtext = prompt("Subtext (optional):", task.subtext || "");
 
-        setTasks(prev => ({
-            ...prev,
-            [section]: prev[section].map(t => t.id === task.id ? { ...t, text: newText, subtext: newSubtext } : t)
-        }));
+        const newTasks = {
+            ...tasks,
+            [section]: tasks[section].map(t => t.id === task.id ? { ...t, text: newText, subtext: newSubtext } : t)
+        };
+        updateRoutine(newTasks);
     };
 
     const deleteTask = (section, taskId) => {
         if (!confirm("Delete this task?")) return;
-        setTasks(prev => ({
-            ...prev,
-            [section]: prev[section].filter(t => t.id !== taskId)
-        }));
+        const newTasks = {
+            ...tasks,
+            [section]: tasks[section].filter(t => t.id !== taskId)
+        };
+        updateRoutine(newTasks);
     };
 
     const resetDay = () => {
         if (confirm("Start a fresh day? This will uncheck all boxes.")) {
             const resetState = {};
-            Object.keys(tasks).forEach(key => { resetState[key] = tasks[key].map(t => ({ ...t, completed: false })); });
-            setTasks(resetState);
+            Object.keys(tasks).forEach(key => {
+                if (Array.isArray(tasks[key])) { // Check if it's an array section
+                    resetState[key] = tasks[key].map(t => ({ ...t, completed: false }));
+                }
+            });
+            updateRoutine(resetState);
         }
     };
 
@@ -160,6 +249,13 @@ const Routine = () => {
                             )}
                         </div>
                         <div className="flex gap-2">
+                            <button
+                                onClick={handleLogout}
+                                className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-400 hover:text-red-500"
+                                title="Log Out"
+                            >
+                                <LogOut size={18} />
+                            </button>
                             <button
                                 onClick={toggleTheme}
                                 className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-400 hover:text-amber-500 dark:hover:text-indigo-400"

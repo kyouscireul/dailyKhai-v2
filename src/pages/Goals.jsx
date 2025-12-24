@@ -8,34 +8,72 @@ import Footer from '../components/Footer';
 
 const Goals = () => {
     const defaultGoals = { savings: 0, savingsTarget: 5000, skills: { frontend: 20, backend: 10, ai: 15 } };
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null);
+    const [goals, setGoals] = useState(defaultGoals);
 
-    const [goals, setGoals] = useState(() => {
-        const saved = localStorage.getItem('khaiGoals_v1');
-        const savedData = saved ? JSON.parse(saved) : {};
-        return {
-            savings: savedData.savings !== undefined ? savedData.savings : defaultGoals.savings,
-            savingsTarget: defaultGoals.savingsTarget,
-            skills: savedData.skills || defaultGoals.skills
-        };
-    });
-
-    const [savingInput, setSavingInput] = useState(String(goals.savings));
+    const [savingInput, setSavingInput] = useState(String(defaultGoals.savings));
     const [isSkillEditing, setIsSkillEditing] = useState(false);
 
+    // Fetch User & Data
     useEffect(() => {
-        localStorage.setItem('khaiGoals_v1', JSON.stringify(goals));
-    }, [goals]);
+        const fetchData = async () => {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                setUser(user);
+
+                if (user) {
+                    const { data: progress } = await supabase
+                        .from('user_progress')
+                        .select('goals_data')
+                        .eq('id', user.id)
+                        .single();
+
+                    if (progress && progress.goals_data) {
+                        // Merge with defaults to ensure structure
+                        setGoals(prev => ({
+                            ...prev,
+                            ...progress.goals_data,
+                            skills: { ...prev.skills, ...(progress.goals_data.skills || {}) }
+                        }));
+                        if (progress.goals_data.savings) setSavingInput(String(progress.goals_data.savings));
+                    }
+                }
+            } catch (error) {
+                console.error("Error loading goals:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+
+    // Save Helper
+    const saveGoals = async (newGoals) => {
+        setGoals(newGoals); // Optimistic Update
+        if (!user) return;
+
+        try {
+            await supabase.from('user_progress').update({ goals_data: newGoals }).eq('id', user.id);
+        } catch (error) {
+            console.error("Error saving goals:", error);
+        }
+    };
 
     const updateSkill = (key, value) => {
         const cleanValue = Math.min(100, Math.max(0, parseInt(value) || 0));
-        setGoals(prev => ({ ...prev, skills: { ...prev.skills, [key]: cleanValue } }));
+        const newGoals = { ...goals, skills: { ...goals.skills, [key]: cleanValue } };
+        saveGoals(newGoals);
     };
 
     const handleSavingChange = (val) => {
         setSavingInput(val);
         if (val === '') return;
         const num = parseInt(val);
-        if (!isNaN(num)) setGoals(prev => ({ ...prev, savings: num }));
+        if (!isNaN(num)) {
+            const newGoals = { ...goals, savings: num };
+            saveGoals(newGoals); // Debounce might be better here but keeping it simple
+        }
     };
 
     const [pillars, setPillars] = useState([]);
@@ -44,22 +82,27 @@ const Goals = () => {
     useEffect(() => {
         const fetchPillars = async () => {
             try {
-                // Assuming we want to fetch all pillars. 
-                // You might want to select specific fields or order them.
+                // Check if pillars table exists or fallback to static list if needed
+                // For now, keeping existing logic but wrapping in try-catch
                 const { data, error } = await supabase
                     .from('pillars')
                     .select('id, type, title')
-                    .order('type'); // Or order by arbitrary 'order' if added
+                    .order('type');
 
                 if (error) throw error;
-                // Transform data if needed to match expected format
                 const formattedPillars = data.map(p => ({
-                    id: p.type, // Using type as ID for routing as per previous logic
+                    id: p.type,
                     label: p.title,
                 }));
                 setPillars(formattedPillars);
             } catch (error) {
-                console.error('Error fetching pillars:', error);
+                console.warn('Error fetching pillars (table might not exist yet):', error);
+                // Fallback to static pillars if DB fetch fails
+                setPillars([
+                    { id: 'finance', label: 'Finance' },
+                    { id: 'health', label: 'Health' },
+                    { id: 'wisdom', label: 'Wisdom' }
+                ]);
             } finally {
                 setLoadingPillars(false);
             }
