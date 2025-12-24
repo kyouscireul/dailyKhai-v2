@@ -7,71 +7,39 @@ import Footer from '../components/Footer';
 import { useTheme } from '../context/ThemeContext';
 import { defaultRoutines } from '../data/routineData';
 
+import { useUser } from '../context/UserContext';
+import { defaultRoutines } from '../data/routineData';
+
 const Routine = () => {
     const { theme, setTheme } = useTheme();
+    const { user, profile, progress: userProgressData, updateProgress } = useUser();
     const [level, setLevel] = useState(2);
     const [isEditing, setIsEditing] = useState(false);
 
-    // Auth & Data State
-    const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState(null);
+    // Sync state with global Context
     const [userName, setUserName] = useState('Khai');
-
-    // Data Containers
-    const [allRoutines, setAllRoutines] = useState(defaultRoutines); // Stores data for ALL levels
-    const [tasks, setTasks] = useState(defaultRoutines[2]); // Current View
-
     const [levelData, setLevelData] = useState({
         1: { name: "Bare Minimum", goal: "Start small. Just show up." },
         2: { name: "Growth Mode", goal: "SOCIAL GOAL: Don't stay alone." },
         3: { name: "Monk Mode", goal: "HIGH DISCIPLINE: No Games." }
     });
 
-    const [deferredPrompt, setDeferredPrompt] = useState(null);
+    const [allRoutines, setAllRoutines] = useState(defaultRoutines);
+    const [tasks, setTasks] = useState(defaultRoutines[2]);
+
     const navigate = useNavigate();
+    const [deferredPrompt, setDeferredPrompt] = useState(null);
 
-    // 1. Initial Data Fetch
+    // 1. Sync from Context when it loads
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                setUser(user);
-
-                if (user) {
-                    // Fetch Profile
-                    const { data: profile } = await supabase
-                        .from('profiles')
-                        .select('*')
-                        .eq('id', user.id)
-                        .single();
-
-                    if (profile) {
-                        if (profile.username) setUserName(profile.username);
-                        // if (profile.theme) setTheme(profile.theme); // Keep theme local
-                        if (profile.level_data) setLevelData(profile.level_data);
-                    }
-
-                    // Fetch Progress
-                    const { data: progress } = await supabase
-                        .from('user_progress')
-                        .select('routine_data')
-                        .eq('id', user.id)
-                        .single();
-
-                    if (progress && progress.routine_data && Object.keys(progress.routine_data).length > 0) {
-                        setAllRoutines(progress.routine_data);
-                        // We will set 'tasks' in the next useEffect when 'level' is stable
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
+        if (profile) {
+            if (profile.username) setUserName(profile.username);
+            if (profile.level_data) setLevelData(profile.level_data);
+        }
+        if (userProgressData && userProgressData.routine_data) {
+            setAllRoutines(userProgressData.routine_data);
+        }
+    }, [profile, userProgressData]);
 
     // 2. Sync Current View when Level or AllRoutines changes
     useEffect(() => {
@@ -82,12 +50,11 @@ const Routine = () => {
         }
     }, [level, allRoutines]);
 
-    // 3. Save Routine Changes (Debounced ideally, but direct for now)
-    // We need a way to update 'allRoutines' when 'tasks' changes, THEN save to DB.
-    // However, 'tasks' changing triggers this.
+    // Helper to save to DB (and Context)
+    const saveRoutine = async (newAllRoutines) => {
+        setAllRoutines(newAllRoutines); // Local UI
+        updateProgress({ routine_data: newAllRoutines }); // Context
 
-    // Helper to save to DB
-    const saveToSupabase = async (newAllRoutines) => {
         if (!user) return;
         try {
             await supabase
@@ -99,14 +66,6 @@ const Routine = () => {
         }
     };
 
-    // Update 'allRoutines' when 'tasks' changes (Local Sync)
-    // AND Save to DB
-    // WARNING: We must be careful not to create an infinite loop.
-    // The flow should be: Interaction -> setTasks -> Update AllRoutines -> Save DB
-
-    // actually, let's change the interaction handlers (toggleTask, etc.) to update AllRoutines directly.
-    // That's cleaner than a useEffect loop.
-
     // 4. Save Profile Changes
     useEffect(() => {
         if (!user) return;
@@ -116,12 +75,6 @@ const Routine = () => {
         const timeout = setTimeout(saveProfile, 1000); // Debounce
         return () => clearTimeout(timeout);
     }, [userName, levelData, user]);
-
-    // Theme Save - Removed to keep theme local to device
-    // useEffect(() => {
-    //     if (!user) return;
-    //     supabase.from('profiles').update({ theme }).eq('id', user.id);
-    // }, [theme, user]);
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -133,15 +86,8 @@ const Routine = () => {
     };
 
     const updateRoutine = (newTasksForLevel) => {
-        // 1. Update Local View
-        setTasks(newTasksForLevel);
-
-        // 2. Update Global State
         const newAllRoutines = { ...allRoutines, [level]: newTasksForLevel };
-        setAllRoutines(newAllRoutines);
-
-        // 3. Sync to DB
-        saveToSupabase(newAllRoutines);
+        saveRoutine(newAllRoutines);
     };
 
     const toggleTask = (section, taskId) => {

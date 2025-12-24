@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabaseClient';
+import { useUser } from '../context/UserContext';
 import { Layers, Pencil, Check } from 'lucide-react';
 import GoalCard from '../components/GoalCard';
 import SkillSlider from '../components/SkillSlider';
@@ -8,49 +6,31 @@ import Footer from '../components/Footer';
 
 const Goals = () => {
     const defaultGoals = { savings: 0, savingsTarget: 5000, skills: { frontend: 20, backend: 10, ai: 15 } };
-    const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState(null);
-    const [goals, setGoals] = useState(defaultGoals);
+    const { user, progress: userProgressData, updateProgress, loading } = useUser();
 
+    const [goals, setGoals] = useState(defaultGoals);
     const [savingInput, setSavingInput] = useState(String(defaultGoals.savings));
     const [isSkillEditing, setIsSkillEditing] = useState(false);
 
-    // Fetch User & Data
+    // Sync from Context
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                setUser(user);
-
-                if (user) {
-                    const { data: progress } = await supabase
-                        .from('user_progress')
-                        .select('goals_data')
-                        .eq('id', user.id)
-                        .single();
-
-                    if (progress && progress.goals_data) {
-                        // Merge with defaults to ensure structure
-                        setGoals(prev => ({
-                            ...prev,
-                            ...progress.goals_data,
-                            skills: { ...prev.skills, ...(progress.goals_data.skills || {}) }
-                        }));
-                        if (progress.goals_data.savings) setSavingInput(String(progress.goals_data.savings));
-                    }
-                }
-            } catch (error) {
-                console.error("Error loading goals:", error);
-            } finally {
-                setLoading(false);
+        if (userProgressData && userProgressData.goals_data) {
+            setGoals(prev => ({
+                ...prev,
+                ...userProgressData.goals_data,
+                skills: { ...prev.skills, ...(userProgressData.goals_data.skills || {}) }
+            }));
+            if (userProgressData.goals_data.savings) {
+                setSavingInput(String(userProgressData.goals_data.savings));
             }
-        };
-        fetchData();
-    }, []);
+        }
+    }, [userProgressData]);
 
     // Save Helper
     const saveGoals = async (newGoals) => {
-        setGoals(newGoals); // Optimistic Update
+        setGoals(newGoals); // Optimistic Update (Local UI)
+        updateProgress({ goals_data: newGoals }); // Context Update
+
         if (!user) return;
 
         try {

@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 
+import { useUser } from '../../context/UserContext';
+
 const FocusQueue = () => {
+    const { user } = useUser();
     const [queue, setQueue] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const [loading, setLoading] = useState(true);
@@ -45,7 +48,10 @@ const FocusQueue = () => {
         try {
             const { data, error } = await supabase
                 .from('tasks')
-                .insert([{ content: inputValue.trim() }])
+                .insert([{
+                    user_id: user.id,
+                    content: inputValue.trim()
+                }])
                 .select()
                 .single();
 

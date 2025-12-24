@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Settings, RotateCcw, ArrowDown, TrendingUp, DollarSign, Wallet } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 
+import { useUser } from '../../context/UserContext';
+
 const FinanceTracker = () => {
+    const { user } = useUser();
+
     // Initial State Loading
     const [config, setConfig] = useState({
         total_savings: 0,
@@ -35,7 +39,12 @@ const FinanceTracker = () => {
                 // No row found, create one
                 const { data: newConfig, error: createError } = await supabase
                     .from('finance_config')
-                    .insert([{ total_savings: 1000, weekly_limit: 500, weekly_save_target: 50 }])
+                    .insert([{
+                        user_id: user.id,
+                        total_savings: 1000,
+                        weekly_limit: 500,
+                        weekly_save_target: 50
+                    }])
                     .select()
                     .single();
                 if (createError) throw createError;
@@ -99,7 +108,11 @@ const FinanceTracker = () => {
         try {
             const { data, error } = await supabase
                 .from('finance_transactions')
-                .insert([{ amount: value, remark: remark }])
+                .insert([{
+                    user_id: user.id,
+                    amount: value,
+                    remark: remark
+                }])
                 .select()
                 .single();
 
