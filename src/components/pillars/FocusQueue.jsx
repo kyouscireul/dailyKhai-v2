@@ -110,6 +110,7 @@ const FocusQueue = () => {
     };
 
     const hasCompletedTasks = queue.some(t => t.is_completed);
+    const completedCount = queue.filter(t => t.is_completed).length;
 
     return (
         <div className="mt-8">
@@ -118,15 +119,15 @@ const FocusQueue = () => {
                     <h3 className="text-lg font-black text-slate-800 dark:text-slate-200 tracking-tight transition-colors">Tactical Queue</h3>
                     <span className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-indigo-100 dark:border-indigo-800 transition-colors">Focus Mode</span>
                 </div>
-                {hasCompletedTasks && (
-                    <button
-                        onClick={clearCompleted}
-                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                        title="Clear Completed"
-                    >
-                        <Trash2 size={16} />
-                    </button>
-                )}
+                <button
+                    onClick={clearCompleted}
+                    disabled={!hasCompletedTasks}
+                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
+                    title="Clear Completed Tasks"
+                >
+                    <Trash2 size={16} />
+                    {completedCount > 0 && <span className="text-xs font-bold">{completedCount}</span>}
+                </button>
             </div>
 
             <form onSubmit={addTask} className="relative mb-6">
@@ -156,7 +157,7 @@ const FocusQueue = () => {
                 {queue.map(task => (
                     <div
                         key={task.id}
-                        onClick={() => toggleTask(task.id)}
+                        onClick={() => toggleTask(task)}
                         className={`group flex items-center gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border shadow-sm transition-all cursor-pointer select-none active:scale-[0.99]
                             ${task.is_completed
                                 ? 'border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 opacity-75'
