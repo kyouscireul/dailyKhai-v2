@@ -8,7 +8,7 @@ import { useTheme } from '../context/ThemeContext';
 import { defaultRoutines } from '../data/routineData';
 
 import { useUser } from '../context/UserContext';
-import { defaultRoutines } from '../data/routineData';
+
 
 const Routine = () => {
     const { theme, setTheme } = useTheme();
