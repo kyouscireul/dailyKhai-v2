@@ -158,12 +158,12 @@ const FocusQueue = () => {
                         key={task.id}
                         onClick={() => toggleTask(task.id)}
                         className={`group flex items-center gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border shadow-sm transition-all cursor-pointer select-none active:scale-[0.99]
-                            ${task.completed
+                            ${task.is_completed
                                 ? 'border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 opacity-75'
                                 : 'border-slate-100 dark:border-slate-800 hover:border-indigo-100 dark:hover:border-indigo-900/50 hover:shadow-md'
                             }`}
                     >
-                        <span className={`font-semibold flex-1 leading-snug transition-all ${task.completed ? 'text-slate-400 line-through decoration-2 decoration-slate-300 dark:decoration-slate-600' : 'text-slate-700 dark:text-slate-200'}`}>
+                        <span className={`font-semibold flex-1 leading-snug transition-all ${task.is_completed ? 'text-slate-400 line-through decoration-2 decoration-slate-300 dark:decoration-slate-600' : 'text-slate-700 dark:text-slate-200'}`}>
                             {task.content}
                         </span>
                     </div>
