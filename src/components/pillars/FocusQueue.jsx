@@ -164,7 +164,7 @@ const FocusQueue = () => {
                             }`}
                     >
                         <span className={`font-semibold flex-1 leading-snug transition-all ${task.completed ? 'text-slate-400 line-through decoration-2 decoration-slate-300 dark:decoration-slate-600' : 'text-slate-700 dark:text-slate-200'}`}>
-                            {task.text}
+                            {task.content}
                         </span>
                     </div>
                 ))}
