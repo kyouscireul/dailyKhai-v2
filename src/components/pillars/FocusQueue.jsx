@@ -49,7 +49,6 @@ const FocusQueue = () => {
             const { data, error } = await supabase
                 .from('tasks')
                 .insert([{
-                    user_id: user.id,
                     content: inputValue.trim()
                 }])
                 .select()
