@@ -23,8 +23,8 @@ const FinanceTracker = () => {
 
     // Fetch Data
     useEffect(() => {
-        fetchData();
-    }, []);
+        if (user) fetchData();
+    }, [user]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -33,6 +33,7 @@ const FinanceTracker = () => {
             let { data: configData, error: configError } = await supabase
                 .from('finance_config')
                 .select('*')
+                .eq('user_id', user.id)
                 .single();
 
             if (configError && configError.code === 'PGRST116') {
@@ -57,6 +58,7 @@ const FinanceTracker = () => {
             const { data: transData, error: transError } = await supabase
                 .from('finance_transactions')
                 .select('*')
+                .eq('user_id', user.id)
                 .eq('is_active', true)
                 .order('created_at', { ascending: false });
 

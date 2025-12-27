@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Check, GraduationCap } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
+import { useUser } from '../../context/UserContext';
 
 const AcademicTracker = () => {
+    const { user } = useUser();
     const [subjects, setSubjects] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchAcademicData();
-    }, []);
+        if (user) fetchAcademicData();
+    }, [user]);
 
     const fetchAcademicData = async () => {
         try {
@@ -20,6 +22,7 @@ const AcademicTracker = () => {
                         *
                     )
                 `)
+                .eq('user_id', user.id)
                 .order('name');
             // Note: You might want a specific order column later
 
