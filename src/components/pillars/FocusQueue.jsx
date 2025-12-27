@@ -12,14 +12,15 @@ const FocusQueue = () => {
 
     // Fetch tasks on mount
     useEffect(() => {
-        fetchTasks();
-    }, []);
+        if (user) fetchTasks();
+    }, [user]);
 
     const fetchTasks = async () => {
         try {
             const { data, error } = await supabase
                 .from('tasks')
                 .select('*')
+                .eq('user_id', user.id)
                 .order('created_at', { ascending: true });
 
             if (error) throw error;
