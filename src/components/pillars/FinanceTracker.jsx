@@ -30,13 +30,19 @@ const FinanceTracker = () => {
         setLoading(true);
         try {
             // 1. Get Config
-            let { data: configData, error: configError } = await supabase
+            let { data: configRows, error: configError } = await supabase
                 .from('finance_config')
                 .select('*')
-                .eq('user_id', user.id)
-                .single();
+                .eq('user_id', user.id);
 
-            if (configError && configError.code === 'PGRST116') {
+            if (configError) throw configError;
+
+            let configData = null;
+
+            if (configRows && configRows.length > 0) {
+                // Use the first existing record
+                configData = configRows[0];
+            } else {
                 // No row found, create one
                 const { data: newConfig, error: createError } = await supabase
                     .from('finance_config')
@@ -50,7 +56,7 @@ const FinanceTracker = () => {
                     .single();
                 if (createError) throw createError;
                 configData = newConfig;
-            } else if (configError) throw configError;
+            }
 
             setConfig(configData);
 
