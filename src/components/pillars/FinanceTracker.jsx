@@ -33,7 +33,12 @@ const FinanceTracker = () => {
             let { data: configRows, error: configError } = await supabase
                 .from('finance_config')
                 .select('*')
-                .eq('user_id', user.id);
+                .eq('user_id', user.id)
+                .order('id', { ascending: true }); // Deterministic fetch
+
+            if (configError) throw configError;
+
+            console.log("Finance Config Loaded:", configRows);
 
             if (configError) throw configError;
 
@@ -85,10 +90,12 @@ const FinanceTracker = () => {
         setConfig(prev => ({ ...prev, [key]: numValue }));
 
         try {
-            await supabase
+            const { error } = await supabase
                 .from('finance_config')
                 .update({ [key]: numValue })
-                .eq('id', config.id);
+                .eq('user_id', user.id); // Update ALL copies to keep duplicates in sync
+
+            if (error) throw error;
         } catch (error) {
             console.error("Error updating config:", error);
         }
